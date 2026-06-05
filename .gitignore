@@ -1,0 +1,176 @@
+# Datos y artefactos regenerables
+
+# Simulaciones FDTD crudas y features procesadas.
+# Son archivos pesados y se regeneran desde el flujo de simulacion.
+data/raw/
+data/processed/simulations/*.h5
+data/processed/simulations/*.json
+data/processed/simulations_extra/*.h5
+data/processed/simulations_extra/*.json
+data/confirmed/**/*.h5
+data/confirmed/**/*.pickle
+data/*.h5
+data/*.pickle
+
+# Dataset ML consolidado.
+# Se reconstruye con los scripts de src/data_processing/.
+data/dataset/*.npz
+data/dataset/metadata.json
+
+# Archivos locales archivados fuera del pipeline de transferencia.
+data/_archive/
+results/_archive/
+src/_archive/
+slurm/_archive/
+
+# data/confirmed/**/*.json se versiona intencionalmente porque documenta
+# valores R2_real confirmados. Solo se ignoran binarios pesados.
+
+# Modelos entrenados y metricas regenerables.
+results/surrogate/*.pt
+results/surrogate/*.pth
+results/surrogate/*.pkl
+results/surrogate/training_log.json
+results/surrogate/eval_metrics.json
+results/surrogate/epoch_metrics.csv
+
+# Outputs intermedios del GA.
+# results/final/ se versiona porque contiene resultados consolidados.
+results/inverse_design/*.pt
+results/inverse_design/*.pkl
+results/inverse_design/top_candidates*.csv
+results/inverse_design/ga_convergence.json
+
+
+# Notas locales del proyecto
+
+# Notas de trabajo y bitacoras de decisiones.
+CLAUDE.md
+MEMORY.md
+DECISIONS.md
+
+# Notas operativas de cluster.
+CONFIRMAR_EN_CLUSTER.md
+
+# Vault de Obsidian.
+wiki/
+
+# Notas fuente no requeridas para ejecutar el pipeline de transferencia.
+docs/
+
+
+# Logs y archivos temporales
+
+# Logs locales y de SLURM.
+logs/*
+slurm-*.out
+slurm-*.err
+*.cache
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Frames de simulacion; las figuras curadas estan en report/Figuras/.
+images/
+
+
+# Python y entornos
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+env/
+venv/
+ENV/
+.venv
+.conda/
+miniconda/
+micromamba/
+
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+.hypothesis/
+
+
+# Notebooks Jupyter
+
+.ipynb_checkpoints/
+notebooks/**/.ipynb_checkpoints/
+notebooks/outputs/
+notebooks/**/*.pdf
+notebooks/**/*.png
+notebooks/EDA.ipynb
+
+
+# Editores y archivos del sistema operativo
+
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.lnk
+
+
+# Fuente del simulador
+
+# El simulador FDTD no se incluye y debe proporcionarse de manera personal.
+src/data_generation/Simulator_Metalen_Meep_2D.py
+
+
+# Credenciales y secretos
+
+.env
+.env.local
+.env.*.local
+config/secrets.yml
+credentials.json
+*.pem
+*.key
+id_rsa*
+
+
+# Marcadores de estructura
+
+!data/.gitkeep
+!results/.gitkeep
+!notebooks/.gitkeep
+
+
+# Artefactos LaTeX
+
+# Directorio de salida de compilacion.
+report/out/
+
+# Archivos auxiliares generados por pdflatex, biber y latexmk.
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc

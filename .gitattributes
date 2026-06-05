@@ -1,0 +1,5 @@
+# Clasificacion de lenguajes en GitHub.
+# El reporte se conserva en el repositorio, pero no cuenta como codigo fuente.
+report/**/*.tex linguist-documentation
+report/**/*.bib linguist-documentation
+report/**/*.tikz linguist-documentation
