@@ -7,6 +7,7 @@ data/processed/simulations/*.h5
 data/processed/simulations/*.json
 data/processed/simulations_extra/*.h5
 data/processed/simulations_extra/*.json
+data/processed/*.tar.gz
 data/confirmed/**/*.h5
 data/confirmed/**/*.pickle
 data/*.h5
