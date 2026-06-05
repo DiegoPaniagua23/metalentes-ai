@@ -2,13 +2,14 @@
 \usepackage{tikz}
 \usepackage{xcolor}
 
-\definecolor{goldau}{RGB}{207,137,30}
+\definecolor{goldau}{RGB}{197,138,42}
 \definecolor{goldstroke}{RGB}{99,56,6}
-\definecolor{substrate}{RGB}{181,212,244}
-\definecolor{substroke}{RGB}{55,138,221}
-\definecolor{lightgreen}{RGB}{30,160,120}
-\definecolor{annoRed}{RGB}{163,45,45}
-\definecolor{annoBlue}{RGB}{24,95,165}
+\definecolor{substrate}{RGB}{216,222,233}
+\definecolor{substroke}{RGB}{107,114,128}
+\definecolor{lightgreen}{RGB}{42,157,143}
+\definecolor{annoRed}{RGB}{182,64,58}
+\definecolor{annoBlue}{RGB}{31,90,133}
+\definecolor{neutralGray}{RGB}{107,114,128}
 
 \begin{document}
 \begin{tikzpicture}[scale=1.0, >=stealth]
@@ -111,7 +112,7 @@
       {sustrato diel\'ectrico};
   % Nano-rendija
   \fill[white] (8.5,\yleg) rectangle (9.0,\yleg+0.4);
-  \draw[black!25, line width=0.5pt] (8.5,\yleg) rectangle (9.0,\yleg+0.4);
+  \draw[neutralGray!45, line width=0.5pt] (8.5,\yleg) rectangle (9.0,\yleg+0.4);
   \node[font=\footnotesize, anchor=west] at (9.15, \yleg+0.2)
       {nano-rendija (vac\'io/aire)};
 

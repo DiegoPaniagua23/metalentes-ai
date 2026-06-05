@@ -29,7 +29,7 @@ Las dos primeras restricciones, (\ref{eq:c1}) y (\ref{eq:c2}), fijan los rangos 
 % --------------------------------------------------
 \subsection{Selección del Algoritmo: Algoritmo Genético}\label{subsec:seleccion_ga}
 
-Se seleccionó un Algoritmo Genético (GA) por tres razones: (i)~el espacio de 102 dimensiones con restricciones no lineales es su nicho natural; (ii)~la aptitud se trata como una caja negra no diferenciable; y (iii)~la evaluación del surrogate en milisegundos permite operar poblaciones grandes sin costo significativo. El segundo punto merece justificación: aunque el MLP es diferenciable, el objetivo que guía la búsqueda no se evalúa sobre su salida cruda, sino que se construye \emph{post-procesándola}, se detecta el pico focal y se extraen descriptores del perfil de intensidad (Sección~\ref{subsec:manifold}), y exige proyectar cada candidato a un espacio factible con restricciones duras; ambas operaciones son no diferenciables. Y aunque se quisiera ascender el gradiente del surrogate directamente, ello conduciría a sus regiones de extrapolación, donde sobreestima (Sección~\ref{subsec:eval_surrogate}). Por ello el gradiente no es aprovechable y se opta por una metaheurística sin gradiente. La Optimización Bayesiana se descartó por la escalabilidad de los Procesos Gaussianos a 102 dimensiones ($\mathcal{O}(n^3)$).
+Se seleccionó un Algoritmo Genético (GA) por tres razones: (i)~el espacio de 102 dimensiones con restricciones no lineales es su nicho natural; (ii)~la aptitud se trata como una caja negra no diferenciable; y (iii)~la evaluación del surrogate en milisegundos hace viable operar poblaciones grandes sin costo significativo. El segundo punto merece justificación: aunque el MLP es diferenciable, el objetivo que guía la búsqueda no se evalúa sobre su salida cruda, sino que se construye \emph{post-procesándola}, se detecta el pico focal y se extraen descriptores del perfil de intensidad (Sección~\ref{subsec:manifold}), y exige proyectar cada candidato a un espacio factible con restricciones duras; ambas operaciones son no diferenciables. Y aunque se quisiera ascender el gradiente del surrogate directamente, ello conduciría a sus regiones de extrapolación, donde sobreestima (Sección~\ref{subsec:eval_surrogate}). El gradiente, por tanto, no es aprovechable y se opta por una metaheurística sin gradiente. La Optimización Bayesiana se descartó por la escalabilidad de los Procesos Gaussianos a 102 dimensiones ($\mathcal{O}(n^3)$).
 
 Cada individuo codifica una metalente como un vector de 102 genes continuos. Los operadores son: selección por torneo (tamaño 5), cruzamiento SBX (\textit{Simulated Binary Crossover}~\cite{deb1995sbx}, $\eta = 15$, probabilidad $0.8$), mutación gaussiana (tasa $5\%$ por gen) con proyección al espacio factible, y elitismo (los 10 mejores pasan intactos). La población es de $250$--$500$ individuos y se ejecutan $80$--$200$ generaciones.
 
@@ -38,14 +38,14 @@ Cada individuo codifica una metalente como un vector de 102 genes continuos. Los
 
 El planteamiento inicial integró el GA en un ciclo activo cerrado. En cada iteración se re-entrenaba el surrogate, se seleccionaban geometrías inciertas mediante \textit{Query by Committee} para simular por FDTD, se ejecutaba el GA con el surrogate actualizado, y se confirmaban sus mejores candidatos. Cada ciclo añadía $15$ simulaciones ($10$ de aprendizaje activo $+ 5$ del GA).
 
-La confirmación FDTD reveló la limitación central: el GA, al optimizar sin restricción sobre todo el espacio, explotaba las debilidades del surrogate. Convergía rápidamente (en $9$--$14$ generaciones) a regiones saturadas del espacio ($w_{\max} = 0.300$, $c_{2c} = 0.300$) donde el surrogate predecía $R^2$ alto por no haber visto datos ahí, no por enfoque real. El resultado: candidatos con $R^2$ predicho ${\sim}0.98$ pero $R^2$ real $\in [0.47, 0.54]$ (gap medio $+0.48$). La correlación global positiva del surrogate no bastaba: el optimizador encuentra justamente los puntos donde el modelo falla.
+La confirmación FDTD reveló la limitación central: el GA, al optimizar sin restricción sobre todo el espacio, explotaba las debilidades del surrogate. Convergía rápidamente (en $9$--$14$ generaciones) a regiones saturadas del espacio, cerca del borde superior de $c_{2c}$ y de los anchos máximos permitidos por el factor de llenado, donde el surrogate predecía $R^2$ alto por no haber visto datos ahí, no por enfoque real. Los candidatos resultantes tenían $R^2$ predicho ${\sim}0.98$ pero $R^2$ real $\in [0.47, 0.54]$ (brecha media $+0.48$). La correlación global positiva del surrogate no bastaba: el optimizador encuentra los puntos donde el modelo falla.
 
-\paragraph{Lección y re-enfoque.} Este primer enfoque no produjo diseños útiles, pero su valor es servir de aprendizaje de lo que no debe hacerse. Dejó dos lecciones que definieron todo lo posterior: (i)~una correlación global positiva del surrogate no garantiza nada, porque el optimizador busca \emph{precisamente} los puntos donde el modelo falla; y (ii)~la libertad de búsqueda es contraproducente con un surrogate imperfecto. El re-enfoque, por tanto, abandona la búsqueda global y el ciclo activo, y los reemplaza por dos cambios concretos: (a)~restringir la búsqueda al manifold de geometrías validadas (Sección~\ref{subsec:manifold}) para impedir la extrapolación, y (b)~sustituir la función de aptitud por una combinación que siga discriminando dentro de ese manifold (Sección~\ref{subsubsec:combo}). Un refinamiento final por simulación directa (Sección~\ref{subsec:hill_climbing}) cierra la estrategia. Las siguientes secciones desarrollan cada pieza, todo lo descrito a partir de aquí pertenece ya al enfoque definitivo.
+\paragraph{Lección y re-enfoque.} Este primer enfoque no produjo diseños útiles, pero su utilidad reside en la lección metodológica que deja. Dejó dos lecciones que definieron todo lo posterior: (i)~una correlación global positiva del surrogate no garantiza nada, porque el optimizador busca los puntos donde el modelo falla; y (ii)~la libertad de búsqueda es contraproducente con un surrogate imperfecto. El re-enfoque, por tanto, abandona la búsqueda global y el ciclo activo, y los reemplaza por dos cambios concretos: (a)~restringir la búsqueda al manifold de geometrías validadas (Sección~\ref{subsec:manifold}) para impedir la extrapolación, y (b)~sustituir la función de aptitud por una combinación que siga discriminando dentro de ese manifold (Sección~\ref{subsubsec:combo}). Un refinamiento final por simulación directa (Sección~\ref{subsec:hill_climbing}) cierra la estrategia. Las siguientes secciones desarrollan cada pieza, todo lo descrito a partir de aquí pertenece ya al enfoque definitivo.
 
 % --------------------------------------------------
 \subsection{Diseño Inverso Restringido al Manifold}\label{subsec:manifold}
 
-El re-enfoque parte de restringir el GA al manifold de geometrías validadas (concepto introducido en la Sección~\ref{subsec:diseno_inverso}). En lugar de buscar en todo $\mathcal{X}$, la población se inicializa y se mantiene en una caja $\ell_\infty$ de radio reducido alrededor de geometrías ya confirmadas como buenos enfocadores (\textit{seeds}):
+El re-enfoque parte de restringir el GA al manifold de geometrías validadas (concepto introducido en la Sección~\ref{subsec:diseno_inverso}). En lugar de buscar en todo $\mathcal{X}$, la población se inicializa y se mantiene en una caja $\ell_\infty$ de radio reducido alrededor de geometrías ya confirmadas como buenos enfocadores (semillas):
 
 \begin{equation}
     \|\mathbf{x} - \mathbf{x}_{\text{seed}}\|_{\infty} \leq \delta, \qquad
@@ -53,7 +53,7 @@ El re-enfoque parte de restringir el GA al manifold de geometrías validadas (co
     \label{eq:manifold_box}
 \end{equation}
 
-Cada individuo se asocia a un \textit{seed} de origen; la reproducción ocurre dentro del mismo \textit{cluster} (sin cruzamiento entre cuencas distintas) y cada hijo se proyecta de vuelta a la caja. Por continuidad física, perturbaciones pequeñas ($\leq 20$~nm) de un enfocador conocido tienen $R^2$ cercano, lo que garantiza que los candidatos permanezcan en la región fiable del surrogate. El radio $\delta$ se redujo progresivamente entre iteraciones (20~nm $\rightarrow$ 10~nm $\rightarrow$ 5~nm) para refinar la búsqueda. La Figura~\ref{fig:manifold_esquema} ilustra la idea: un optimizador libre escapa hacia las regiones de extrapolación donde el surrogate sobreestima, mientras que la caja $\ell_\infty(\delta)$ mantiene la búsqueda en el vecindario validado.
+Cada individuo se asocia a una semilla de origen; la reproducción ocurre dentro del mismo \textit{cluster} (sin cruzamiento entre cuencas distintas) y cada hijo se proyecta de vuelta a la caja. Por continuidad física, perturbaciones pequeñas ($\leq 20$~nm) de un enfocador conocido aumentan la probabilidad de permanecer en una región ópticamente plausible y reducen el riesgo de extrapolación del surrogate, aunque no garantizan estabilidad óptica. El radio $\delta$ se redujo progresivamente entre iteraciones (20~nm $\rightarrow$ 10~nm $\rightarrow$ 5~nm) para refinar la búsqueda. La Figura~\ref{fig:manifold_esquema} ilustra la idea: un optimizador libre escapa hacia las regiones de extrapolación donde el surrogate sobreestima, mientras que la caja $\ell_\infty(\delta)$ mantiene la búsqueda en el vecindario validado.
 
 \begin{figure}[H]
     \centering
@@ -62,7 +62,7 @@ Cada individuo se asocia a un \textit{seed} de origen; la reproducción ocurre d
     vecindario definen la región donde el surrogate es fiable; fuera de ella el modelo
     extrapola y sobreestima. Un GA libre (flecha roja punteada) deriva hacia esa zona y
     produce candidatos no fiables; el GA restringido mantiene la población dentro de la caja
-    $\ell_\infty(\delta)$ alrededor de un \textit{seed} confirmado.}
+    $\ell_\infty(\delta)$ alrededor de una semilla confirmada.}
     \label{fig:manifold_esquema}
 \end{figure}
 
@@ -84,16 +84,8 @@ $\hat{R}^2_{\text{pred}}$ ancla la aptitud hacia la zona globalmente alta, mient
 términos auxiliares discriminan entre candidatos cercanos cuando el escalar satura.
 
 Para preservar diversidad, la selección de los candidatos finales se diversifica por
-\textit{cluster} (un número fijo por cada \textit{seed}), evitando que todos converjan a una
-sola cuenca. La Figura~\ref{fig:ga_esquema} resume el flujo completo de este GA particular.
-
-\begin{figure}[H]
-    \centering
-    \input{Figuras/ga_esquema.tikz}
-    \caption{Estructura del algoritmo genético restringido al manifold. A partir de un conjunto de \textit{seeds} confirmados por FDTD, la población se inicializa y se mantiene en una caja $\ell_\infty(\delta)$ por \textit{cluster}. Cada generación evalúa la aptitud combinada con el surrogate, selecciona por torneo \emph{dentro} de cada \textit{cluster}, aplica cruzamiento y mutación, y proyecta de vuelta a la caja (con elitismo); el lazo se repite $n$ generaciones. La selección final, diversificada por \textit{cluster}, alimenta la confirmación FDTD. Las dos diferencias respecto a un GA estándar, la caja por
-    \textit{cluster} y la aptitud combinada, son los dos pilares del re-enfoque.}
-    \label{fig:ga_esquema}
-\end{figure}
+\textit{cluster} (un número fijo por cada semilla), evitando que todos converjan a una
+sola cuenca.
 
 % --------------------------------------------------
 \subsection{Refinamiento Final: Hill-Climbing por Simulación Directa}\label{subsec:hill_climbing}
@@ -101,4 +93,4 @@ sola cuenca. La Figura~\ref{fig:ga_esquema} resume el flujo completo de este GA 
 Tras varias iteraciones del GA restringido (descritas en la
 Sección~\ref{sec:resultados}), se constató que el surrogate ya no aportaba dirección de mejora dentro de las cuencas: las geometrías de alta calidad conocidas estaban en óptimos locales estrechos. El paso final prescindió del surrogate y empleó hill-climbing por simulación FDTD directa (búsqueda local en el sentido de la Sección~\ref{subsec:diseno_inverso}): alrededor de cada cuenca de interés se generaron $50$ perturbaciones gaussianas ($\sigma = 5$~nm) de la mejor geometría conocida, validando cada una por FDTD. Todas las perturbaciones respetan las restricciones físicas mediante recorte al manifold válido.
 
-Este procedimiento cumple un doble propósito: refinar la mejor geometría sin el sesgo del surrogate, y caracterizar la robustez local de cada cuenca. Esto es, qué tan sensible es el $R^2$ a perturbaciones del orden de las tolerancias de fabricación. Los resultados de este análisis, que revelaron diferencias cualitativas entre cuencas, se presentan en la Sección~\ref{sec:resultados}.
+Este procedimiento cumple un doble propósito: refinar la mejor geometría sin el sesgo del surrogate, y caracterizar la robustez local de cada cuenca, es decir, qué tan sensible es el $R^2$ a perturbaciones del orden de las tolerancias de fabricación. Los resultados de este análisis, que revelaron diferencias cualitativas entre cuencas, se presentan en la Sección~\ref{sec:resultados}.

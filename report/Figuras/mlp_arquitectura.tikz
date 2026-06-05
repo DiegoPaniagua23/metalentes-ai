@@ -1,14 +1,18 @@
+\definecolor{primaryBlue}{RGB}{31,90,133}
+\definecolor{secondaryTeal}{RGB}{42,157,143}
+\definecolor{accentOrange}{RGB}{194,106,46}
+
 \begin{tikzpicture}[>=stealth, font=\small,
-    box/.style={draw=blue!55, line width=0.7pt, rounded corners=2pt, fill=blue!8,
+    box/.style={draw=primaryBlue, line width=0.7pt, rounded corners=2pt, fill=primaryBlue!8,
                 minimum height=1.05cm, align=center, inner sep=4pt},
-    head/.style={draw=blue!55, line width=0.7pt, rounded corners=2pt, fill=teal!12,
+    head/.style={draw=primaryBlue, line width=0.7pt, rounded corners=2pt, fill=secondaryTeal!12,
                  minimum height=0.95cm, align=center, inner sep=3pt},
-    outbox/.style={draw=orange!75!black, line width=0.7pt, rounded corners=2pt, fill=orange!14,
-                minimum height=0.8cm, align=center, inner sep=3pt},
-    flow/.style={->, line width=0.9pt, draw=blue!55!black}]
+    outbox/.style={draw=accentOrange, line width=0.7pt, rounded corners=2pt, fill=accentOrange!14,
+                 minimum height=0.8cm, align=center, inner sep=3pt},
+    flow/.style={->, line width=0.9pt, draw=primaryBlue}]
 
   %% --- Entrada ---
-  \node[box, fill=green!10, draw=green!45!black, minimum width=2.1cm] (in) at (0,0)
+  \node[box, fill=secondaryTeal!10, draw=secondaryTeal, minimum width=2.1cm] (in) at (0,0)
       {Entrada\\[1pt] $\mathbf{x}\in\mathbb{R}^{102}$\\[1pt] \scriptsize 101 anchos $+\,c_{2c}$};
 
   %% --- Backbone (3 capas ocultas) ---
@@ -20,12 +24,12 @@
   \draw[flow] (h1) -- (h2);
   \draw[flow] (h2) -- (h3);
 
-  \node[font=\footnotesize\itshape, text=blue!55!black] at (5.4,1.25)
+  \node[font=\footnotesize\itshape, text=primaryBlue] at (5.4,1.25)
       {\textit{backbone} compartido ($512\times 3$)};
 
   %% --- Ramificación en dos cabezas ---
   \coordinate (branch) at (9.3,0);
-  \draw[line width=0.9pt, draw=blue!55!black] (h3.east) -- (branch);
+  \draw[line width=0.9pt, draw=primaryBlue] (h3.east) -- (branch);
 
   \node[head, minimum width=2.2cm] (field) at (11.6,1.35) {\texttt{field\_head}\\ Linear $2L=2048$};
   \node[head, minimum width=2.2cm] (r2h)   at (11.6,-1.35) {\texttt{r2\_head}\\ Linear $1$ $+$ Sigmoid};
@@ -43,7 +47,7 @@
   \draw[flow] (r2h.east)   -- (r2.west);
 
   %% --- Etiquetas de agrupación de salidas ---
-  \node[font=\footnotesize\itshape, text=orange!60!black, align=left, anchor=west]
+  \node[font=\footnotesize\itshape, text=accentOrange, align=left, anchor=west]
       at (13.9,3.0) {campo óptico focal};
 
 \end{tikzpicture}

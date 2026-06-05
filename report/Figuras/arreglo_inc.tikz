@@ -83,7 +83,7 @@
   \node[font=\footnotesize, anchor=west] at (5.15, \yleg+0.2)
       {medio diel\'ectrico (aire)};
   \fill[white] (8.5,\yleg) rectangle (9.0,\yleg+0.4);
-  \draw[black!25, line width=0.5pt] (8.5,\yleg) rectangle (9.0,\yleg+0.4);
+  \draw[neutralGray!45, line width=0.5pt] (8.5,\yleg) rectangle (9.0,\yleg+0.4);
   \node[font=\footnotesize, anchor=west] at (9.15, \yleg+0.2)
       {nano-rendija (vac\'io/aire)};
 

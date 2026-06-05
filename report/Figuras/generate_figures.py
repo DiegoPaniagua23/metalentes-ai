@@ -17,7 +17,52 @@ import numpy as np
 
 OUT = 'report/Figuras'
 os.makedirs(OUT, exist_ok=True)
-plt.rcParams.update({'figure.dpi': 150, 'font.size': 9.5, 'savefig.bbox': 'tight'})
+
+# Paleta común del reporte: sobria, legible en impresión y consistente entre
+# figuras de datos y esquemas TikZ.
+PALETTE = {
+    'primary': '#1F5A85',      # azul técnico
+    'secondary': '#2A9D8F',    # verde/teal para casos favorables
+    'accent': '#C26A2E',       # naranja para fase o énfasis secundario
+    'risk': '#B6403A',         # rojo para umbrales/riesgo
+    'neutral': '#6B7280',      # gris texto/guías
+    'light': '#D8DEE9',        # gris claro para distribuciones base
+    'dark': '#263238',         # casi negro
+    'gold': '#C58A2A',         # oro/Au
+}
+
+plt.rcParams.update({
+    'figure.dpi': 150,
+    'savefig.dpi': 300,
+    'savefig.bbox': 'tight',
+    'font.size': 9.5,
+    'axes.titlesize': 10.5,
+    'axes.labelsize': 9.5,
+    'legend.fontsize': 8.5,
+    'xtick.labelsize': 8.5,
+    'ytick.labelsize': 8.5,
+    'axes.edgecolor': PALETTE['neutral'],
+    'axes.linewidth': 0.8,
+    'grid.color': '#C9D1D9',
+    'grid.linewidth': 0.6,
+    'grid.alpha': 0.45,
+})
+
+
+def style_ax(ax, grid_axis='both'):
+    """Aplicar estilo común de ejes a todas las gráficas Matplotlib."""
+    ax.grid(True, axis=grid_axis)
+    ax.set_axisbelow(True)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color(PALETTE['neutral'])
+    ax.spines['bottom'].set_color(PALETTE['neutral'])
+
+
+def savefig(fig, name):
+    """Guardar figura con configuración uniforme."""
+    fig.savefig(f'{OUT}/{name}.png')
+    plt.close(fig)
 
 
 def load_confirmed(dirs):
@@ -44,19 +89,21 @@ def fig_pred_vs_real():
     rp = np.array([r[1] for r in rows])
     rr = np.array([r[2] for r in rows])
     fig, ax = plt.subplots(figsize=(5.5, 5))
-    ax.scatter(rr, rp, s=45, alpha=0.7, edgecolor='k', linewidth=0.4, color='#2c7fb8')
+    ax.scatter(rr, rp, s=45, alpha=0.78, edgecolor=PALETTE['dark'], linewidth=0.35,
+               color=PALETTE['primary'])
     lim = [0, 1]
-    ax.plot(lim, lim, 'k--', linewidth=1, label='$R^2_{pred} = R^2_{real}$ (ideal)')
-    ax.axhline(0.90, color='r', linestyle=':', linewidth=0.8, alpha=0.6)
-    ax.axvline(0.90, color='r', linestyle=':', linewidth=0.8, alpha=0.6, label='umbral $R^2=0.90$')
+    ax.plot(lim, lim, color=PALETTE['dark'], linestyle='--', linewidth=1,
+            label='$R^2_{pred} = R^2_{real}$ (ideal)')
+    ax.axhline(0.90, color=PALETTE['risk'], linestyle=':', linewidth=1.0, alpha=0.85)
+    ax.axvline(0.90, color=PALETTE['risk'], linestyle=':', linewidth=1.0, alpha=0.85,
+               label='umbral $R^2=0.90$')
     ax.set_xlabel('$R^2_{real}$ (FDTD)')
     ax.set_ylabel('$R^2_{pred}$ (surrogate)')
     ax.set_title('Predicción del surrogate vs. simulación FDTD')
     ax.set_xlim(lim); ax.set_ylim(lim)
     ax.legend(loc='lower right', fontsize=9)
-    ax.grid(alpha=0.3)
-    fig.savefig(f'{OUT}/fig_pred_vs_real.png')
-    plt.close(fig)
+    style_ax(ax)
+    savefig(fig, 'fig_pred_vs_real')
     print(f'  [pred_vs_real] {len(rows)} candidatos confirmados')
 
 
@@ -67,15 +114,16 @@ def fig_hist_r2():
     f = np.load('data/dataset/fields.npz', allow_pickle=True)
     r2 = f['r_squared']
     fig, ax = plt.subplots(figsize=(6.5, 4))
-    ax.hist(r2, bins=50, color='#41b6c4', edgecolor='k', linewidth=0.3)
-    ax.axvline(0.90, color='r', linestyle='--', linewidth=1.2, label='umbral $R^2=0.90$')
+    ax.hist(r2, bins=50, color=PALETTE['primary'], alpha=0.78,
+            edgecolor=PALETTE['dark'], linewidth=0.25)
+    ax.axvline(0.90, color=PALETTE['risk'], linestyle='--', linewidth=1.2,
+               label='umbral $R^2=0.90$')
     ax.set_xlabel('$R^2$ (ajuste parabólico, FDTD)')
     ax.set_ylabel('Número de simulaciones')
     ax.set_title(f'Distribución de $R^2$ en el dataset (N={len(r2)})')
     ax.legend()
-    ax.grid(alpha=0.3)
-    fig.savefig(f'{OUT}/fig_hist_r2.png')
-    plt.close(fig)
+    style_ax(ax, grid_axis='y')
+    savefig(fig, 'fig_hist_r2')
     print(f'  [hist_r2] N={len(r2)}, R²>=0.90: {(r2>=0.90).sum()}')
 
 
@@ -102,26 +150,25 @@ def fig_training_curves():
     fig, axes = plt.subplots(1, 2, figsize=(9.5, 3.8))
 
     ax = axes[0]
-    ax.plot(ep, [r['train_loss'] for r in h], color='#2c7fb8', lw=1.5, label='entrenamiento')
-    ax.plot(ep, [r['val_loss'] for r in h], color='#d95f0e', lw=1.5, label='validación')
-    ax.axvline(best, color='gray', ls='--', lw=1, label='mejor época (%d)' % best)
+    ax.plot(ep, [r['train_loss'] for r in h], color=PALETTE['primary'], lw=1.6, label='entrenamiento')
+    ax.plot(ep, [r['val_loss'] for r in h], color=PALETTE['accent'], lw=1.6, label='validación')
+    ax.axvline(best, color=PALETTE['neutral'], ls='--', lw=1, label='mejor época (%d)' % best)
     ax.set_xlabel('Época'); ax.set_ylabel('Pérdida total $\\mathcal{L}$')
     ax.set_title('(a) Curvas de pérdida total')
-    ax.legend(fontsize=8); ax.grid(alpha=0.3)
+    ax.legend(fontsize=8); style_ax(ax)
 
     ax = axes[1]
-    for key, lab, c in [('val_amp', 'amplitud', '#2c7fb8'),
-                        ('val_phase', 'fase', '#d95f0e'),
-                        ('val_r2', '$\\hat{R}^2_{pred}$', '#31a354')]:
+    for key, lab, c in [('val_amp', 'amplitud', PALETTE['primary']),
+                        ('val_phase', 'fase', PALETTE['accent']),
+                        ('val_r2', '$\\hat{R}^2_{pred}$', PALETTE['secondary'])]:
         ax.plot(ep, [r[key] for r in h], lw=1.4, color=c, label=lab)
     ax.set_yscale('log')
     ax.set_xlabel('Época'); ax.set_ylabel('MSE de validación (escala normalizada)')
     ax.set_title('(b) Componentes de la pérdida')
-    ax.legend(fontsize=8); ax.grid(alpha=0.3, which='both')
+    ax.legend(fontsize=8); style_ax(ax)
 
     fig.tight_layout()
-    fig.savefig(f'{OUT}/fig_training_curves.png')
-    plt.close(fig)
+    savefig(fig, 'fig_training_curves')
     print('  [training_curves] %d épocas, mejor=%d, val_loss=%.3f'
           % (len(ep), best, d['best_val_loss']))
 
@@ -157,7 +204,7 @@ def fig_eda_campos():
     nof_ex = rng.choice(nof_idx, size=3, replace=False)
 
     fig, axes = plt.subplots(2, 2, figsize=(9.5, 7))
-    cf, cn = '#2c7fb8', '#bdbdbd'
+    cf, cn = PALETTE['primary'], PALETTE['light']
 
     # (a) amplitud promedio por grupo, alineada al pico
     ax = axes[0, 0]
@@ -180,7 +227,7 @@ def fig_eda_campos():
     ax.set_xlabel('Posición transversal relativa al pico (índice)')
     ax.set_ylabel('$|E|(y)$ promedio (normalizada)')
     ax.set_title('(a) Amplitud focal media $\\pm 1\\sigma$ por grupo')
-    ax.grid(alpha=0.3)
+    style_ax(ax)
     ax.legend(fontsize=8)
 
     # (b) fase
@@ -192,7 +239,7 @@ def fig_eda_campos():
     ax.set_xlabel('Posición transversal $y$ (índice)')
     ax.set_ylabel('$\\Phi(y)$ (rad, centrada)')
     ax.set_title('(b) Fase focal desenvuelta')
-    ax.grid(alpha=0.3)
+    style_ax(ax)
 
     # (c) FWHM por grupo
     ax = axes[1, 0]
@@ -202,7 +249,7 @@ def fig_eda_campos():
     ax.set_xlabel('FWHM del lóbulo de amplitud (índices)')
     ax.set_ylabel('Densidad')
     ax.set_title('(c) Anchura del lóbulo focal')
-    ax.legend(fontsize=8); ax.grid(alpha=0.3)
+    ax.legend(fontsize=8); style_ax(ax, grid_axis='y')
 
     # (d) rango de fase por grupo
     ax = axes[1, 1]
@@ -212,11 +259,10 @@ def fig_eda_campos():
     ax.set_xlabel('Rango dinámico de la fase $\\max\\Phi-\\min\\Phi$ (rad)')
     ax.set_ylabel('Densidad')
     ax.set_title('(d) Excursión de la fase')
-    ax.legend(fontsize=8); ax.grid(alpha=0.3)
+    ax.legend(fontsize=8); style_ax(ax, grid_axis='y')
 
     fig.tight_layout()
-    fig.savefig(f'{OUT}/fig_eda_campos.png')
-    plt.close(fig)
+    savefig(fig, 'fig_eda_campos')
     print(f'  [eda_campos] FWHM foc/nof={fw[foc].mean():.0f}/{fw[nof].mean():.0f}, '
           f'rango fase foc/nof={rng_ph[foc].mean():.1f}/{rng_ph[nof].mean():.1f}')
 
@@ -237,18 +283,19 @@ def fig_cuencas():
         print('  [cuencas] sin datos, omitido')
         return
     fig, ax = plt.subplots(figsize=(6.5, 4.5))
-    bp = ax.boxplot(data, labels=labels, patch_artist=True, showmeans=True)
-    colors = ['#31a354', '#de2d26', '#de2d26']
+    bp = ax.boxplot(data, tick_labels=labels, patch_artist=True, showmeans=True)
+    colors = [PALETTE['secondary'], PALETTE['risk'], PALETTE['risk']]
     for patch, c in zip(bp['boxes'], colors):
         patch.set_facecolor(c); patch.set_alpha(0.5)
-    ax.axhline(0.90, color='r', linestyle='--', linewidth=1, label='umbral $R^2=0.90$')
-    ax.axhline(0.70, color='gray', linestyle=':', linewidth=0.8, label='colapso de enfoque ($R^2<0.70$)')
+    ax.axhline(0.90, color=PALETTE['risk'], linestyle='--', linewidth=1,
+               label='umbral $R^2=0.90$')
+    ax.axhline(0.70, color=PALETTE['neutral'], linestyle=':', linewidth=0.9,
+               label='colapso de enfoque ($R^2<0.70$)')
     ax.set_ylabel('$R^2_{real}$ (FDTD)')
     ax.set_title('Robustez por cuenca: perturbaciones $\\sigma=5$ nm')
     ax.legend(fontsize=9, loc='lower center')
-    ax.grid(alpha=0.3, axis='y')
-    fig.savefig(f'{OUT}/fig_cuencas_robustez.png')
-    plt.close(fig)
+    style_ax(ax, grid_axis='y')
+    savefig(fig, 'fig_cuencas_robustez')
     print(f'  [cuencas] {len(data)} cuencas')
 
 
@@ -267,22 +314,22 @@ def fig_geometria_campo():
     titulo_perfil = 'Perfil de anchos — hc627_036 ($R^2=%.4f$)' % r2val
 
     fig, ax = plt.subplots(figsize=(7, 3.5))
-    ax.plot(np.arange(1, len(widths) + 1), widths, '-o', ms=3, color='#2c7fb8', linewidth=1)
+    ax.plot(np.arange(1, len(widths) + 1), widths, '-o', ms=3,
+            color=PALETTE['primary'], markerfacecolor='white', markeredgewidth=0.8,
+            linewidth=1.2)
     ax.set_xlabel('Índice de rendija')
     ax.set_ylabel('Ancho (nm)')
     ax.set_title(titulo_perfil)
-    ax.grid(alpha=0.3)
-    fig.savefig(f'{OUT}/fig_perfil_hc627.png')
-    plt.close(fig)
+    style_ax(ax)
+    savefig(fig, 'fig_perfil_hc627')
 
     fig, ax = plt.subplots(figsize=(7, 3.5))
-    ax.plot(trans, color='#d95f0e', linewidth=1)
+    ax.plot(trans, color=PALETTE['accent'], linewidth=1.2)
     ax.set_xlabel('Posición transversal $y$ (índice)')
     ax.set_ylabel('Intensidad normalizada $|E|^2$')
     ax.set_title('Perfil de intensidad en el plano focal — hc627_036')
-    ax.grid(alpha=0.3)
-    fig.savefig(f'{OUT}/fig_campo_hc627.png')
-    plt.close(fig)
+    style_ax(ax)
+    savefig(fig, 'fig_campo_hc627')
     print(f'  [hc627_036] perfil + campo (R²={d["r_squared"]:.4f})')
 
 
@@ -307,21 +354,21 @@ def fig_pca_espacio():
     fig, ax = plt.subplots(figsize=(6.6, 5))
     order = np.argsort(r2)                       # alto R² encima
     sc = ax.scatter(Z[order, 0], Z[order, 1], c=r2[order], s=14, cmap='viridis',
-                    alpha=0.85, edgecolor='none')
+                    alpha=0.86, edgecolor='none')
     cb = fig.colorbar(sc, ax=ax); cb.set_label('$R^2_{real}$ (FDTD)')
     id2i = {str(s): i for i, s in enumerate(ids)}
     for sid, lab in [('sim_042', '042'), ('sim_721', '721'), ('sim_627', '627')]:
         if sid in id2i:
             i = id2i[sid]
-            ax.scatter(Z[i, 0], Z[i, 1], s=150, marker='*', color='red',
-                       edgecolor='k', linewidth=0.6, zorder=5)
+            ax.scatter(Z[i, 0], Z[i, 1], s=150, marker='*', color=PALETTE['risk'],
+                       edgecolor=PALETTE['dark'], linewidth=0.6, zorder=5)
             ax.annotate('cuenca %s' % lab, (Z[i, 0], Z[i, 1]), textcoords='offset points',
                         xytext=(7, 5), fontsize=8.5, fontweight='bold')
     ax.set_xlabel('Componente principal 1 (%.0f%% var.)' % ev[0])
     ax.set_ylabel('Componente principal 2 (%.0f%% var.)' % ev[1])
     ax.set_title('Espacio de diseño (PCA) coloreado por $R^2_{real}$')
-    ax.grid(alpha=0.3)
-    fig.savefig(f'{OUT}/fig_pca_espacio.png'); plt.close(fig)
+    style_ax(ax)
+    savefig(fig, 'fig_pca_espacio')
     print('  [pca] var. explicada 2D = %.0f%% (%.0f+%.0f)' % (ev[:2].sum(), ev[0], ev[1]))
 
 
@@ -339,24 +386,24 @@ def fig_aguja_meseta():
     plateau = 0.60 + (0.926 - 0.60) * np.exp(-(x**2) / (2 * 9.5**2))
 
     fig, ax = plt.subplots(figsize=(7, 4.2))
-    ax.axvspan(-5, 5, color='gray', alpha=0.15, label='tolerancia $\\pm5$ nm')
-    ax.plot(x, needle, color='#de2d26', lw=2.2, label='cuenca aguja (042/721)')
-    ax.plot(x, plateau, color='#31a354', lw=2.2, label='cuenca meseta (627)')
-    ax.axhline(0.90, color='r', ls='--', lw=0.9, alpha=0.7)
-    ax.text(14.5, 0.905, '$R^2=0.90$', color='r', fontsize=8, ha='right', va='bottom')
-    ax.axhline(0.70, color='gray', ls=':', lw=0.9)
-    ax.text(14.5, 0.705, 'colapso ($R^2<0.70$)', color='gray', fontsize=8, ha='right', va='bottom')
+    ax.axvspan(-5, 5, color=PALETTE['neutral'], alpha=0.15, label='tolerancia $\\pm5$ nm')
+    ax.plot(x, needle, color=PALETTE['risk'], lw=2.2, label='cuenca aguja (042/721)')
+    ax.plot(x, plateau, color=PALETTE['secondary'], lw=2.2, label='cuenca meseta (627)')
+    ax.axhline(0.90, color=PALETTE['risk'], ls='--', lw=0.9, alpha=0.75)
+    ax.text(14.5, 0.905, '$R^2=0.90$', color=PALETTE['risk'], fontsize=8, ha='right', va='bottom')
+    ax.axhline(0.70, color=PALETTE['neutral'], ls=':', lw=0.9)
+    ax.text(14.5, 0.705, 'colapso ($R^2<0.70$)', color=PALETTE['neutral'], fontsize=8, ha='right', va='bottom')
     # anotaciones de los picos reales
     ax.annotate('máx. 0.958', (0, 0.958), textcoords='offset points', xytext=(8, -2),
-                fontsize=8, color='#de2d26')
+                fontsize=8, color=PALETTE['risk'])
     ax.annotate('máx. 0.926', (0, 0.926), textcoords='offset points', xytext=(-58, 6),
-                fontsize=8, color='#1a7a32')
+                fontsize=8, color=PALETTE['secondary'])
     ax.set_xlabel('Perturbación de la geometría respecto al óptimo (nm)')
     ax.set_ylabel('$R^2_{real}$')
     ax.set_title('Cuenca «aguja» vs «meseta»: efecto de la tolerancia de fabricación')
     ax.set_ylim(0.2, 1.0); ax.set_xlim(-15, 15)
-    ax.legend(loc='lower center', fontsize=8.5); ax.grid(alpha=0.3)
-    fig.savefig(f'{OUT}/fig_aguja_meseta.png'); plt.close(fig)
+    ax.legend(loc='lower center', fontsize=8.5); style_ax(ax)
+    savefig(fig, 'fig_aguja_meseta')
     print('  [aguja_meseta] figura conceptual generada')
 
 
@@ -400,20 +447,20 @@ def fig_surrogate_overlay():
     y = np.arange(L)
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
-    axes[0].plot(y, amp_real[i], color='k', lw=1.3, label='FDTD (real)')
-    axes[0].plot(y, amp_pred, color='#2c7fb8', lw=1.3, ls='--', label='surrogate')
+    axes[0].plot(y, amp_real[i], color=PALETTE['dark'], lw=1.3, label='FDTD (real)')
+    axes[0].plot(y, amp_pred, color=PALETTE['primary'], lw=1.3, ls='--', label='surrogate')
     axes[0].set_xlabel('Posición transversal $y$ (índice)')
     axes[0].set_ylabel('$|E|(y)$ (normalizada)')
-    axes[0].set_title('(a) Amplitud'); axes[0].legend(fontsize=8); axes[0].grid(alpha=0.3)
-    axes[1].plot(y, ph_real[i], color='k', lw=1.3, label='FDTD (real)')
-    axes[1].plot(y, ph_pred, color='#d95f0e', lw=1.3, ls='--', label='surrogate')
+    axes[0].set_title('(a) Amplitud'); axes[0].legend(fontsize=8); style_ax(axes[0])
+    axes[1].plot(y, ph_real[i], color=PALETTE['dark'], lw=1.3, label='FDTD (real)')
+    axes[1].plot(y, ph_pred, color=PALETTE['accent'], lw=1.3, ls='--', label='surrogate')
     axes[1].set_xlabel('Posición transversal $y$ (índice)')
     axes[1].set_ylabel('$\\Phi(y)$ (rad, centrada)')
-    axes[1].set_title('(b) Fase'); axes[1].legend(fontsize=8); axes[1].grid(alpha=0.3)
+    axes[1].set_title('(b) Fase'); axes[1].legend(fontsize=8); style_ax(axes[1])
     fig.suptitle('Predicción del surrogate vs. FDTD — %s ($R^2_{real}=%.3f$, MSE$_{|E|}$=%.3f)'
                  % (str(ids[i]), float(r2[i]), float(mse_amp[i])), fontsize=10)
     fig.tight_layout()
-    fig.savefig(f'{OUT}/fig_surrogate_overlay.png'); plt.close(fig)
+    savefig(fig, 'fig_surrogate_overlay')
     print('  [overlay] %s (R²=%.3f, MSE_amp=%.4f)' % (str(ids[i]), float(r2[i]), float(mse_amp[i])))
 
 

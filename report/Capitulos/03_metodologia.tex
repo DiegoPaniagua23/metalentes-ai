@@ -3,7 +3,7 @@
 % ==================================================
 \section{Metodología}\label{sec:metodologia}
 
-En esta sección se describe el flujo de trabajo seguido para la generación, procesamiento y consolidación del conjunto de datos utilizado en las etapas posteriores de modelado predictivo y optimización. La metodología se estructura en cinco etapas: descripción del simulador y de las variables del problema, diseño de experimentos, generación de datos mediante simulaciones FDTD, post-procesamiento de las salidas electromagnéticas y consolidación del dataset final. Esta organización permite distinguir entre la generación de la verdad numérica de referencia, proporcionada por FDTD, y el uso posterior de modelos subrogados para acelerar la búsqueda de geometrías candidatas.
+En esta sección se describe el flujo de trabajo seguido para la generación, procesamiento y consolidación del conjunto de datos utilizado en las etapas posteriores de modelado predictivo y optimización. La metodología se estructura en cinco etapas: descripción del simulador y de las variables del problema, diseño de experimentos, generación de datos mediante simulaciones FDTD, post-procesamiento de las salidas electromagnéticas y consolidación del dataset final. Esta organización separa la generación de la verdad numérica de referencia, proporcionada por FDTD, del uso posterior de modelos subrogados para acelerar la búsqueda de geometrías candidatas.
 
 % --------------------------------------------------
 \subsection{Descripción del Simulador}\label{subsec:simulador}
@@ -26,19 +26,24 @@ La velocidad de la luz se define computacionalmente como $c = 299{,}792{,}458 \t
 % --------------------------------------------------
 \begin{figure}[H]
     \centering
-    \colorlet{goldau}{yellow!60!orange!80}
-    \colorlet{goldstroke}{brown!80!black}
-    \colorlet{substrate}{blue!20!white}
-    \colorlet{substroke}{blue!60}
-    \colorlet{lightgreen}{green!50!teal}
-    \colorlet{annoRed}{red!70!black}
-    \colorlet{annoBlue}{blue!70!black}
+    \definecolor{primaryBlue}{RGB}{31,90,133}
+    \definecolor{secondaryTeal}{RGB}{42,157,143}
+    \definecolor{riskRed}{RGB}{182,64,58}
+    \definecolor{neutralGray}{RGB}{107,114,128}
+    \definecolor{lightPanel}{RGB}{216,222,233}
+    \definecolor{goldau}{RGB}{197,138,42}
+    \definecolor{goldstroke}{RGB}{99,56,6}
+    \colorlet{substrate}{lightPanel}
+    \colorlet{substroke}{neutralGray}
+    \colorlet{lightgreen}{secondaryTeal}
+    \colorlet{annoRed}{riskRed}
+    \colorlet{annoBlue}{primaryBlue}
     \input{Figuras/arreglo_inc.tikz}
     \caption{Esquema de la metalente plasmónica de nano-rendijas. La película de oro
     (Au) está rodeada de aire. La luz incidente
     ($\lambda = 630$~nm) atraviesa las rendijas mediante transmisión óptica extraordinaria
     y emerge con fase y amplitud moduladas. Los parámetros de diseño son el ancho de cada
-    rendija $w$ (\texttt{widths}) y la separación centro a centro $c$ (\texttt{c2c\_d}).}
+    rendija $w$ (\texttt{widths}) y la separación centro a centro $c_{2c}$ (\texttt{c2c\_d}).}
     \label{fig:arreglo}
 \end{figure}
 
@@ -106,18 +111,18 @@ Toda configuración generada, independientemente del perfil o semilla aleatoria,
 
 \begin{enumerate}
     \item $0.020 \leq w_i \leq 0.300\;\mu$m \quad (anchos de rendija en régimen sub-longitud de onda).
-    \item $0.150 \leq c_j \leq 0.300\;\mu$m \quad (separación centro a centro entre rendijas adyacentes).
-    \item $c_j - \tfrac{1}{2}(w_j + w_{j+1}) \geq 0.020\;\mu$m \quad (pared mínima de oro entre rendijas).
-    \item $0.1 \leq w_i/c \leq 0.5$ \quad (factor de llenado en el régimen de resonancia óptima para EOT).
+    \item $0.150 \leq c_{2c} \leq 0.300\;\mu$m \quad (separación centro a centro entre rendijas adyacentes).
+    \item $c_{2c} - \tfrac{1}{2}(w_j + w_{j+1}) \geq 0.020\;\mu$m \quad (pared mínima de oro entre rendijas).
+    \item $0.1 \leq w_i/c_{2c} \leq 0.5$ \quad (factor de llenado en el régimen de resonancia óptima para EOT).
 \end{enumerate}
 
 Estas restricciones evitan configuraciones físicamente inválidas, como solapamiento entre rendijas o paredes metálicas demasiado delgadas, y acotan el espacio de búsqueda a geometrías compatibles con el simulador y con las hipótesis del estudio.
 
 \subsubsection{Muestreo del Espacio de Diseño}
 
-Aunque una metalente con $101$ rendijas podría describirse, en principio, mediante $101$ anchos y $100$ separaciones independientes, en este diseño de experimentos la separación centro a centro se mantiene constante por metalente. Por ello, cada geometría se representa mediante un vector de $102$ componentes: $101$ anchos de rendija más un valor escalar de separación $c$.
+Aunque una metalente con $101$ rendijas podría describirse, en principio, mediante $101$ anchos y $100$ separaciones independientes, en este diseño de experimentos la separación centro a centro se mantiene constante por metalente. Por ello, cada geometría se representa mediante un vector de $102$ componentes: $101$ anchos de rendija más un valor escalar de separación $c_{2c}$.
 
-La dimensionalidad efectiva del conjunto generado es menor que $102$, ya que los anchos no se muestrean de manera completamente independiente. Cada configuración queda determinada por una familia de perfil, el valor de $c$ y un número reducido de parámetros internos que definen la forma del perfil, como la amplitud $a$ del parabólico, el ancho $\sigma$ del gaussiano, la pendiente $s$ del lineal, o la frecuencia $f$ y la fase $\varphi$ del sinusoidal. Las configuraciones se generan mediante un script de muestreo que busca cubrir de manera amplia el dominio permitido de estos parámetros bajo las restricciones físicas establecidas.
+La dimensionalidad efectiva del conjunto generado es menor que $102$, ya que los anchos no se muestrean de manera completamente independiente. Cada configuración queda determinada por una familia de perfil, el valor de $c_{2c}$ y un número reducido de parámetros internos que definen la forma del perfil, como la amplitud $a$ del parabólico, el ancho $\sigma$ del gaussiano, la pendiente $s$ del lineal, o la frecuencia $f$ y la fase $\varphi$ del sinusoidal. Las configuraciones se generan mediante un script de muestreo que busca cubrir de manera amplia el dominio permitido de estos parámetros bajo las restricciones físicas establecidas.
 
 % --------------------------------------------------
 \subsection{Generación de Datos}\label{subsec:generacion}
@@ -156,11 +161,11 @@ Las simulaciones se ejecutaron en dos plataformas de cómputo. El clúster Lab-S
 
 Una auditoría temprana del enfoque, desarrollada en el análisis exploratorio (Sección~\ref{sec:eda}), motivó un cambio en la representación del objetivo de aprendizaje que se detalla en la Sección~\ref{sec:modelado}. En lugar de reducir cada simulación a un escalar de calidad ($R^2$) o a una etiqueta binaria, se conservó una representación densa de la respuesta óptica: el campo complejo en el plano focal, descrito mediante amplitud $|E|(y)$ y fase $\Phi(y)$, re-muestreadas a una longitud fija de $1{,}024$ puntos.
 
-De este modo, el dataset conserva la información de todas las simulaciones, incluidas aquellas que no producen enfoque satisfactorio, y no solo la escasa región de alto $R^2$. Esta representación densa no elimina las limitaciones asociadas al tamaño del conjunto, pero permite aprovechar información que el objetivo escalar dejaba sin uso.
+Con ello, el dataset conserva la información de todas las simulaciones, incluidas aquellas que no producen enfoque satisfactorio, y no solo la escasa región de alto $R^2$. Esta representación densa no elimina las limitaciones asociadas al tamaño del conjunto, pero aprovecha información que el objetivo escalar dejaba sin uso.
 
 \subsubsection{Estructuración del Dataset}
 
-De cada archivo JSON se extraen el identificador de la simulación, el vector geométrico $\mathbf{x} \in \mathbb{R}^{102}$, compuesto por $101$ anchos y una separación centro a centro $c$ constante por metalente, la amplitud y fase del campo focal re-muestreadas a $1{,}024$ puntos, y el coeficiente $R^2$ asociado al perfil de intensidad.
+De cada registro consolidado se integra el identificador de la simulación, el vector geométrico $\mathbf{x} \in \mathbb{R}^{102}$, compuesto por $101$ anchos y una separación centro a centro $c_{2c}$ constante por metalente, la amplitud y fase del campo focal re-muestreadas a $1{,}024$ puntos, y el coeficiente $R^2$ asociado al perfil de intensidad. En las simulaciones base, la geometría proviene de los archivos de diseño de experimentos y la respuesta óptica de los JSONs procesados; en las confirmaciones FDTD, ambos elementos se conservan en los registros confirmados.
 
 La longitud de $1{,}024$ puntos se eligió por ser la potencia de dos inmediatamente superior al máximo observado de $N_y = 1{,}023$ puntos transversales en el plano focal del dataset. El valor de $N_y$ varía entre simulaciones porque el dominio FDTD se dimensiona dinámicamente en función de la apertura de cada metalente. Esta elección permite representar todos los perfiles con una longitud común sin pérdida de resolución por submuestreo respecto al máximo observado.
 
@@ -168,7 +173,7 @@ El coeficiente $R^2$ se conserva como métrica de referencia, criterio operativo
 
 \subsubsection{Estratificación y Partición}
 
-El dataset oficial consolida $1{,}110$ simulaciones: $1{,}000$ provienen del diseño de experimentos inicial (\texttt{sim\_XXX}), $90$ corresponden al ciclo de mejora inicial y $20$ a geometrías confirmadas durante las iteraciones de diseño inverso. Para preservar representación de la escasa región de alto $R^2$ en cada partición, se aplicó estratificación por bandas de $R^2$ ($<0.30$, $[0.30,0.70)$, $[0.70,0.85)$, $\geq 0.85$) con semilla fija ($\texttt{seed}=42$) y proporciones $70\%/15\%/15\%$.
+El dataset oficial consolida $1{,}110$ simulaciones: $1{,}000$ provienen del diseño de experimentos inicial (\texttt{sim\_XXX}), $90$ del ciclo de mejora inicial (el subconjunto con geometría recuperable de las ${\sim}180$ simulaciones del ciclo activo descrito en la Sección~\ref{subsec:enfoque_v1}) y $20$ de las dos primeras iteraciones de diseño inverso confirmadas por FDTD. Las confirmaciones posteriores (iteración~5 y el refinamiento por hill-climbing, Sección~\ref{sec:resultados}) son cronológicamente posteriores al congelado del dataset, por lo que se reportan como resultados sin reincorporarse al entrenamiento. Para preservar representación de la escasa región de alto $R^2$ en cada partición, se aplicó estratificación por bandas de $R^2$ ($<0.30$, $[0.30,0.70)$, $[0.70,0.85)$, $\geq 0.85$) con semilla fija ($\texttt{seed}=42$) y proporciones $70\%/15\%/15\%$.
 
 Las geometrías confirmadas durante las iteraciones de diseño inverso se incorporan al conjunto de entrenamiento para mantener las particiones de validación y prueba como conjuntos de evaluación independientes respecto al proceso final de selección de candidatos. Esta decisión evita evaluar el modelo sobre geometrías que ya fueron utilizadas dentro del ciclo de diseño asistido. La distribución resultante es $781$ / $161$ / $168$ para entrenamiento, validación y prueba.
 

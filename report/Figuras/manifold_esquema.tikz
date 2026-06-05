@@ -1,40 +1,47 @@
+\definecolor{primaryBlue}{RGB}{31,90,133}
+\definecolor{secondaryTeal}{RGB}{42,157,143}
+\definecolor{accentOrange}{RGB}{194,106,46}
+\definecolor{riskRed}{RGB}{182,64,58}
+\definecolor{neutralGray}{RGB}{107,114,128}
+\definecolor{darkText}{RGB}{38,50,56}
+
 \begin{tikzpicture}[>=stealth, font=\small]
 
   % --- Espacio de diseño ---
-  \draw[rounded corners=3pt, draw=black!55, line width=0.8pt] (0,0) rectangle (11.5,7);
-  \node[anchor=north west, font=\footnotesize\itshape, text=black!55] at (0.2,6.85)
+  \draw[rounded corners=3pt, draw=neutralGray, line width=0.8pt] (0,0) rectangle (11.5,7);
+  \node[anchor=north west, font=\footnotesize\itshape, text=neutralGray] at (0.2,6.85)
       {espacio de diseño $\mathcal{X}$ (proyección esquemática)};
 
   % --- Región fiable del surrogate (cerca de los datos) ---
-  \fill[blue!12] (3.8,3.5) ellipse (3.0 and 1.9);
-  \draw[blue!50, line width=0.7pt] (3.8,3.5) ellipse (3.0 and 1.9);
-  \node[blue!55!black, font=\footnotesize, align=center] at (3.8,5.05)
+  \fill[primaryBlue!12] (3.8,3.5) ellipse (3.0 and 1.9);
+  \draw[primaryBlue, line width=0.7pt] (3.8,3.5) ellipse (3.0 and 1.9);
+  \node[primaryBlue, font=\footnotesize, align=center] at (3.8,5.05)
       {región fiable del surrogate\\[-2pt]{\scriptsize(cerca de los datos de entrenamiento)}};
 
   % --- Datos de entrenamiento ---
   \foreach \x/\y in {2.3/3.2,2.9/4.0,3.4/2.8,3.8/3.8,4.3/3.1,4.8/3.9,2.7/2.7,3.2/3.5,4.6/3.3,5.1/3.6,2.5/3.9,4.0/2.7,3.0/3.1}
-     \fill[blue!55!black] (\x,\y) circle (1.2pt);
+     \fill[primaryBlue] (\x,\y) circle (1.2pt);
 
   % --- Zona de extrapolación ---
-  \node[red!60!black, font=\footnotesize, align=center] at (9.0,1.6)
+  \node[riskRed, font=\footnotesize, align=center] at (9.0,1.6)
       {zona de extrapolación\\[-2pt]{\scriptsize el surrogate sobreestima}};
 
   % --- Seed validado + caja L-infinito ---
-  \fill[orange!85!black] (4.4,3.4) circle (3pt);
-  \draw[black] (4.4,3.4) circle (3pt);
-  \draw[dashed, red!70!black, line width=0.8pt] (3.9,2.9) rectangle (4.9,3.9);
-  \node[red!70!black, font=\scriptsize, anchor=south] at (4.4,3.92) {caja $\ell_\infty(\delta)$};
-  \node[font=\scriptsize, anchor=north, text=orange!50!black] at (4.4,2.86) {\textit{seed} validado};
+  \fill[accentOrange] (4.4,3.4) circle (3pt);
+  \draw[darkText] (4.4,3.4) circle (3pt);
+  \draw[dashed, riskRed, line width=0.8pt] (3.9,2.9) rectangle (4.9,3.9);
+  \node[riskRed, font=\scriptsize, anchor=south] at (4.4,3.92) {caja $\ell_\infty(\delta)$};
+  \node[font=\scriptsize, anchor=north, text=accentOrange] at (4.4,2.86) {\textit{seed} validado};
 
   % --- GA libre (malo): escapa hacia la extrapolación ---
-  \draw[->, red!70!black, line width=1.0pt, dotted]
+  \draw[->, riskRed, line width=1.0pt, dotted]
       (5.0,3.4) .. controls (7,2.6) and (8.2,2.5) .. (8.9,2.5);
-  \node[red!70!black, font=\scriptsize, fill=white, inner sep=1pt] at (6.6,3.05) {GA libre};
+  \node[riskRed, font=\scriptsize] at (7.65,2.95) {GA libre};
 
   % --- GA restringido (bueno): se mantiene en la caja ---
-  \draw[->, green!45!black, line width=0.9pt] (4.15,3.25) -- (4.55,3.55);
-  \draw[->, green!45!black, line width=0.9pt] (4.65,3.3) -- (4.3,3.55);
-  \node[green!40!black, font=\scriptsize, anchor=west, align=left] at (5.15,3.45)
+  \draw[->, secondaryTeal, line width=0.9pt] (4.05,3.08) -- (4.28,3.26);
+  \draw[->, secondaryTeal, line width=0.9pt] (4.76,3.76) -- (4.54,3.58);
+  \node[secondaryTeal, font=\scriptsize, anchor=west, align=left] at (5.15,3.45)
       {GA restringido\\[-2pt]al manifold};
 
 \end{tikzpicture}

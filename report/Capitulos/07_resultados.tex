@@ -8,7 +8,7 @@ Esta sección presenta los resultados de las iteraciones de diseño inverso conf
 % --------------------------------------------------
 \subsection{Iteraciones de Diseño Inverso}\label{subsec:iteraciones}
 
-Se ejecutaron cinco iteraciones de optimización con confirmación FDTD. La Tabla~\ref{tab:iteraciones} resume su evolución, que ilustra el efecto de restringir progresivamente la búsqueda al manifold de geometrías validadas.
+Se ejecutaron cinco iteraciones de optimización; cuatro de ellas tuvieron confirmación FDTD independiente. La Tabla~\ref{tab:iteraciones} resume su evolución, que ilustra el efecto de restringir progresivamente la búsqueda al manifold de geometrías validadas.
 
 \begin{table}[H]
 \centering
@@ -19,31 +19,31 @@ Se ejecutaron cinco iteraciones de optimización con confirmación FDTD. La Tabl
 \midrule
 1 & GA libre (surrogate sin pesos)        & $[0.47,\,0.54]$   & 0 / 10 \\
 3 & GA manifold $\ell_\infty = 20$~nm     & $[0.25,\,0.8998]$ & 0 / 10 \\
-4 & GA manifold $\ell_\infty = 10$~nm + combo & $[0.77,\,0.9025]$ & \textbf{1 / 10} \\
-5 & GA manifold $\ell_\infty = 5$~nm + combo  & $[0.55,\,0.885]$  & 0 / 10 \\
+4 & GA manifold $\ell_\infty = 10$~nm + comb. & $[0.77,\,0.9025]$ & \textbf{1 / 10} \\
+5 & GA manifold $\ell_\infty = 5$~nm + comb.  & $[0.55,\,0.885]$  & 0 / 10 \\
 \bottomrule
 \end{tabular}
-\caption{Evolución de las iteraciones de diseño inverso confirmadas por FDTD. El añadido \texttt{+ combo} indica que la iteración optimizó con la \emph{función de aptitud combinada} (Ec.~\ref{eq:combo_fitness}, Sección~\ref{subsubsec:combo}); las iteraciones~1 y~3 usaron $\hat{R}^2_{\text{pred}}$ directo como aptitud. La iteración~2 fue una exploración intermedia de arquitectura y ponderación, sin confirmación FDTD independiente.}
+\caption{Evolución de las iteraciones de diseño inverso confirmadas por FDTD. El añadido + comb.\ indica que la iteración optimizó con la \emph{función de aptitud combinada} (Ec.~\ref{eq:combo_fitness}, Sección~\ref{subsubsec:combo}); las iteraciones~1 y~3 usaron $\hat{R}^2_{\text{pred}}$ directo como aptitud. La iteración~2 fue una exploración intermedia de arquitectura y ponderación, sin confirmación FDTD independiente.}
 \label{tab:iteraciones}
 \end{table}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.55\textwidth]{Figuras/fig_pred_vs_real.png}
-    \caption{Predicción del surrogate ($R^2_{\text{pred}}$) frente al valor real confirmado por FDTD ($R^2_{\text{real}}$) para los candidatos de las iteraciones 3--5. Los puntos por encima de la diagonal evidencian la sobreestimación del surrogate en la zona alta, que motivó la restricción al manifold.}
+    \caption{Predicción del surrogate ($\hat{R}^2_{\text{pred}}$) frente al valor real confirmado por FDTD ($R^2_{\text{real}}$) para los candidatos de las iteraciones 3--5. Los puntos por encima de la diagonal evidencian la sobreestimación del surrogate en la zona alta, que motivó la restricción al manifold.}
     \label{fig:pred_vs_real}
 \end{figure}
 
-La iteración~1 (GA libre) confirmó el diagnóstico de la Sección~\ref{subsec:ciclo_activo}: todos los candidatos colapsaron a $R^2 \approx 0.5$ con un \textit{gap} medio de $+0.48$ respecto a lo predicho. Al restringir al manifold (iter.~3--5), los candidatos se acercaron sistemáticamente al umbral: la iteración~4 produjo el primer cruce, \texttt{mvp\_c09} con $R^2_{\text{real}} = 0.9025$. La iteración~5, con la caja más estrecha ($5$~nm), no superó a la~4; de hecho, la mayoría de los candidatos derivados quedó por debajo de su \textit{seed}, indicando que las cuencas exploradas ya estaban cerca de su óptimo local.
+La iteración~1 (GA libre) confirmó el diagnóstico de la Sección~\ref{subsec:ciclo_activo}: todos los candidatos colapsaron a $R^2 \approx 0.5$ con una brecha media de $+0.48$ respecto a lo predicho. Al restringir al manifold (iter.~3--5), los candidatos se acercaron sistemáticamente al umbral: la iteración~4 produjo el primer cruce, \texttt{mvp\_c09} con $R^2_{\text{real}} = 0.9025$. La iteración~5, con la caja más estrecha ($5$~nm), no superó a la~4; de hecho, la mayoría de los candidatos derivados quedó por debajo de su semilla, indicando que las cuencas exploradas ya estaban cerca de su óptimo local.
 
-\subsubsection{El \textit{Plateau} de las Iteraciones}
+\subsubsection{El Estancamiento de las Iteraciones}
 
-Tres iteraciones con cajas decrecientes ($20 \rightarrow 10 \rightarrow 5$~nm) y tres versiones del surrogate convergieron al mismo rango $[0.85, 0.91]$, sin que reducir la caja mejorara el resultado. Este \textit{plateau} resultó robusto al surrogate, al radio de búsqueda y a los \textit{seeds}, lo que sugería que el límite no era un defecto del modelo sino una propiedad del paisaje físico, una hipótesis que el análisis de cuencas confirmaría.
+Tres iteraciones con cajas decrecientes ($20 \rightarrow 10 \rightarrow 5$~nm) y tres versiones del surrogate convergieron al mismo rango $[0.85, 0.91]$, sin que reducir la caja mejorara el resultado. Este estancamiento se mostró robusto al surrogate, al radio de búsqueda y a las semillas, lo que sugería que el límite reflejaba una propiedad local del paisaje físico más que un mero defecto del modelo, una hipótesis que el análisis de cuencas confirmaría.
 
 % --------------------------------------------------
 \subsection{Convergencia del Pipeline: Calidad Global de los Candidatos}\label{subsec:convergencia}
 
-Más allá del puñado de geometrías que cruzan el umbral $R^2 \geq 0.90$, el resultado agregado más informativo es el desplazamiento de toda la distribución de calidad de los candidatos respecto al muestreo aleatorio del diseño de experimentos. La Tabla~\ref{tab:convergencia} compara la distribución de $R^2_{\text{real}}$ del conjunto base (DoE) con la de los candidatos producidos por el enfoque definitivo: el GA restringido al manifold (iteraciones 3--5) y el hill-climbing sobre la cuenca robusta.
+Más allá del puñado de geometrías que cruzan el umbral $R^2 \geq 0.90$, el resultado agregado más informativo es el desplazamiento de toda la distribución de calidad de los candidatos respecto al conjunto histórico consolidado. La Tabla~\ref{tab:convergencia} compara la distribución de $R^2_{\text{real}}$ del dataset consolidado con la de los candidatos producidos por el enfoque definitivo: el GA restringido al manifold (iteraciones 3--5) y el hill-climbing sobre la cuenca robusta.
 
 \begin{table}[H]
 \centering
@@ -52,23 +52,23 @@ Más allá del puñado de geometrías que cruzan el umbral $R^2 \geq 0.90$, el r
 \toprule
 \textbf{Conjunto} & \textbf{$n$} & \textbf{$R^2_{\text{real}}$ medio} & \textbf{$\geq 0.60$} & \textbf{$\geq 0.85$} & \textbf{$\geq 0.90$} \\
 \midrule
-DoE (conjunto base)                          & 1{,}110 & 0.24 & 11\,\% & 2.1\,\% & 0.4\,\% \\
+Dataset consolidado                          & 1{,}110 & 0.24 & 11\,\% & 2.1\,\% & 0.4\,\% \\
 GA restringido al manifold (iter.\ 3--5)     & 30      & 0.79 & 87\,\% & 60\,\%  & 3\,\%   \\
 Hill-climbing cuenca robusta (627)           & 50      & 0.73 & 92\,\% & 18\,\%  & 6\,\%   \\
 \bottomrule
 \end{tabular}
-\caption{Distribución de $R^2_{\text{real}}$ de los candidatos del enfoque definitivo frente al muestreo aleatorio del DoE. El enfoque definitivo concentra los candidatos en la región de alta calidad, desplazando la media de $0.24$ a ${\sim}0.79$.}
+\caption{Distribución de $R^2_{\text{real}}$ de los candidatos del enfoque definitivo frente al dataset consolidado. El enfoque definitivo concentra los candidatos en la región de alta calidad, desplazando la media de $0.24$ a ${\sim}0.79$.}
 \label{tab:convergencia}
 \end{table}
 
-El contraste es drástico. Mientras que en el DoE solo el $11\%$ de las geometrías alcanza $R^2_{\text{real}} \geq 0.60$ y la media es $0.24$, los candidatos del GA restringido al manifold se concentran masivamente en la región de alta calidad: el $87\%$ supera $0.60$, el $60\%$ supera $0.85$ (frente a apenas $2.1\%$ en el DoE) y su $R^2$ medio es $0.79$, más del triple de la media del muestreo aleatorio. El hill-climbing sobre la cuenca robusta sostiene esa concentración ($92\%$ por encima de $0.60$). En total, el enfoque definitivo produjo cuatro geometrías con $R^2_{\text{real}} \geq 0.90$ (una del GA y tres del hill-climbing).
+La diferencia respecto al conjunto consolidado es notable. En este, solo el $11\%$ de las geometrías alcanza $R^2_{\text{real}} \geq 0.60$, con una media de $0.24$; los candidatos del GA restringido al manifold, en cambio, se concentran en la región de alta calidad: el $87\%$ supera $0.60$, el $60\%$ supera $0.85$ (frente a apenas $2.1\%$ en el conjunto consolidado) y su $R^2$ medio es $0.79$, más del triple de la media histórica. El hill-climbing sobre la cuenca robusta sostiene esa concentración ($92\%$ por encima de $0.60$). En total, el enfoque definitivo produjo cuatro geometrías con $R^2_{\text{real}} \geq 0.90$ (una del GA y tres del hill-climbing).
 
-Este desplazamiento es, por sí mismo, uno de los resultados más relevantes del proyecto: demuestra que el pipeline no halló sus mejores diseños por azar, sino que el surrogate aprendió a dirigir la búsqueda hacia la región fértil del espacio y el GA la explotó de forma sistemática. La diferencia entre una tasa de acierto del $2.1\%$ por encima de $R^2 \geq 0.85$ (DoE) y del $60\%$ (GA restringido al manifold) cuantifica el valor del enfoque de aprendizaje sobre la exploración no dirigida.
+Este desplazamiento es, por sí mismo, uno de los resultados más relevantes del proyecto: muestra que el pipeline no halló sus mejores diseños por azar, sino que combinó información aprendida por el surrogate, semillas validadas y restricciones de manifold para concentrar la búsqueda en regiones fértiles del espacio. La diferencia entre una tasa histórica del $2.1\%$ por encima de $R^2 \geq 0.85$ y del $60\%$ en el GA restringido al manifold cuantifica el valor del enfoque asistido frente a una exploración no dirigida.
 
 % --------------------------------------------------
 \subsection{Cuencas de Óptimos Independientes}\label{subsec:cuencas}
 
-Una auditoría del conjunto de datos reveló que la región $R^2 \geq 0.90$ no es un único óptimo sino tres cuencas geométricamente independientes, separadas por distancias euclidianas $\ell_2 \approx 0.5$ en el espacio de diseño (Tabla~\ref{tab:cuencas}). El optimizador siempre había convergido a una sola de ellas (la de \texttt{sim\_627}) porque ahí se ubicaban sus \textit{seeds}. Las otras dos, incluyendo el máximo absoluto del conjunto de datos, nunca se habían explorado como semillas.
+Una auditoría del conjunto de datos reveló que la región $R^2 \geq 0.90$ no es un único óptimo sino tres cuencas geométricamente independientes, separadas por distancias euclidianas $\ell_2 \approx 0.5$ en el espacio de diseño (Tabla~\ref{tab:cuencas}). El optimizador siempre había convergido a una sola de ellas (la de \texttt{sim\_627}) porque ahí se ubicaban sus semillas. Las otras dos, incluyendo el máximo absoluto del conjunto de datos, nunca se habían explorado como semillas.
 
 \begin{table}[H]
 \centering
@@ -103,7 +103,7 @@ Esta estructura se aprecia al proyectar las $1{,}110$ geometrías ($102$ dimensi
 \subsection{Hallazgo Central: Cuencas ``Aguja'' frente a ``Amplia''}\label{subsec:aguja_amplia}
 
 Para caracterizar las tres cuencas se aplicó hill-climbing por FDTD directa
-(Sección~\ref{subsec:hill_climbing}): $50$ perturbaciones gaussianas de $\sigma = 5$~nm por cuenca, validadas individualmente. La Tabla~\ref{tab:hill_climbing} resume los resultados, que revelan una diferencia cualitativa fundamental entre cuencas.
+(Sección~\ref{subsec:hill_climbing}): $50$ perturbaciones gaussianas de $\sigma = 5$~nm por cuenca, validadas individualmente. Las cuencas 042 y 721 se sembraron desde su máximo del diseño de experimentos (\texttt{sim\_042} y \texttt{sim\_721}, Tabla~\ref{tab:cuencas}); la cuenca 627 se sembró desde \texttt{mvp\_c09} ($R^2_{\text{real}} = 0.9025$), el mejor candidato que el algoritmo genético había confirmado en ella durante la iteración~4, con el fin de refinar el producto del pipeline en lugar del punto histórico \texttt{sim\_627}. La Tabla~\ref{tab:hill_climbing} resume los resultados, que revelan una diferencia cualitativa fundamental entre cuencas.
 
 \begin{table}[H]
 \centering
@@ -118,34 +118,34 @@ Para caracterizar las tres cuencas se aplicó hill-climbing por FDTD directa
 \bottomrule
 \end{tabular}
 \caption{Resultados del hill-climbing FDTD ($50$ perturbaciones $\sigma=5$~nm por cuenca).
-La cuenca 627 tolera las perturbaciones; las cuencas 042 y 721 colapsan.}
+La cuenca 627 muestra mayor tolerancia relativa; las cuencas 042 y 721 colapsan con mayor frecuencia.}
 \label{tab:hill_climbing}
 \end{table}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.72\textwidth]{Figuras/fig_cuencas_robustez.png}
-    \caption{Distribución de $R^2_{\text{real}}$ bajo perturbaciones de $\sigma=5$~nm por cuenca. La cuenca amplia (627, verde) mantiene su distribución cerca del umbral; las cuencas aguja (042, 721, rojas) se dispersan muy por debajo del colapso de enfoque ($R^2 < 0.70$). El triángulo marca la media.}
+    \caption{Distribución de $R^2_{\text{real}}$ bajo perturbaciones de $\sigma=5$~nm por cuenca. La cuenca amplia (627, verde) mantiene una distribución menos degradada que las cuencas aguja; las cuencas 042 y 721 (rojas) se dispersan muy por debajo del colapso de enfoque ($R^2 < 0.70$). El triángulo marca la media.}
     \label{fig:cuencas_robustez}
 \end{figure}
 
 Los contrastes son:
 
 \begin{itemize}
-    \item \textbf{Cuenca amplia (627)}: tolera
-    perturbaciones de $\pm 5$~nm y el hill-climbing incluso mejoró el
-    \textit{seed}, elevando el $R^2$ de $0.9025$ (\texttt{mvp\_c09}) a $0.9256$ (\texttt{hc627\_036}). Su $R^2$ medio bajo perturbación es $0.73$ y produjo tres geometrías con $R^2 \geq 0.90$.
+    \item \textbf{Cuenca amplia (627)}: presenta mayor tolerancia relativa a
+    perturbaciones de $\pm 5$~nm y el hill-climbing incluso mejoró su semilla
+    \texttt{mvp\_c09}, elevando el $R^2$ de $0.9025$ a $0.9256$ (\texttt{hc627\_036}). Su $R^2$ medio bajo perturbación es $0.73$ y produjo tres geometrías con $R^2 \geq 0.90$.
     \item \textbf{Cuencas aguja (042, 721)}: pese a tener los máximos puntuales más altos del conjunto de datos ($0.9579$ y $0.9246$), son crestas extremadamente estrechas. El $90\%$ o más de las perturbaciones de $\pm 5$~nm degradan el $R^2$ por debajo de $0.70$, y ninguna alcanza siquiera $0.85$. El máximo histórico es inalcanzable con
     cualquier perturbación.
 
 \end{itemize}
 
-La implicación de ingeniería es directa: una tolerancia de fabricación litográfica del orden de $\pm 5$~nm destruye el enfoque en las cuencas aguja, mientras que la cuenca amplia lo conserva. El valor del pipeline ML no fue meramente cruzar el umbral $R^2 \geq 0.90$, sino localizar la cuenca robusta del paisaje, de mayor utilidad práctica que los máximos puntuales hallados por el muestreo aleatorio del diseño de experimentos. La Figura~\ref{fig:aguja_meseta} sintetiza el contraste de forma esquemática: una cuenca aguja alcanza un máximo más alto pero colapsa dentro de la banda de tolerancia de $\pm5$~nm, mientras que la meseta sacrifica algo de pico a cambio de mantener $R^2 \geq 0.85$ en toda esa banda.
+En términos de ingeniería, una tolerancia de fabricación litográfica del orden de $\pm 5$~nm degrada severamente el enfoque en las cuencas aguja, mientras que la cuenca 627 muestra una robustez relativa mayor. El valor del pipeline ML no fue meramente cruzar el umbral $R^2 \geq 0.90$, sino localizar una región del paisaje con mayor probabilidad de retener desempeño útil bajo perturbaciones nanométricas que los máximos puntuales hallados por el muestreo aleatorio del diseño de experimentos. La Figura~\ref{fig:aguja_meseta} sintetiza el contraste de forma esquemática: una cuenca aguja alcanza un máximo más alto pero colapsa dentro de la banda de tolerancia de $\pm5$~nm, mientras que la meseta sacrifica algo de pico a cambio de una degradación menos abrupta alrededor del óptimo.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.74\textwidth]{Figuras/fig_aguja_meseta.png}
-    \caption{Esquema del hallazgo central, anclado a los valores reales. La cuenca \emph{aguja} (042/721) alcanza un $R^2$ máximo más alto ($0.958$) pero su perfil es tan estrecho que la tolerancia de fabricación de $\pm5$~nm (banda gris) lo hunde por debajo del colapso de enfoque; la cuenca \emph{meseta} (627, máximo $0.926$) permanece por encima de $R^2 \approx 0.85$ en toda la banda. La robustez, no el máximo puntual, es lo
+    \caption{Esquema del hallazgo central, anclado a los valores reales. La cuenca \emph{aguja} (042/721) alcanza un $R^2$ máximo más alto ($0.958$) pero su perfil es tan estrecho que la tolerancia de fabricación de $\pm5$~nm (banda gris) lo hunde por debajo del colapso de enfoque; la cuenca \emph{meseta} (627, máximo $0.926$) presenta una degradación menos abrupta y conserva más candidatos útiles bajo la misma escala de perturbación. La robustez relativa, no el máximo puntual, es lo
     que tiene valor de ingeniería.}
     \label{fig:aguja_meseta}
 \end{figure}
@@ -153,7 +153,7 @@ La implicación de ingeniería es directa: una tolerancia de fabricación litogr
 % --------------------------------------------------
 \subsection{Geometría Recomendada}\label{subsec:geometria_final}
 
-La geometría recomendada como resultado del proyecto es \texttt{hc627\_036}, con $R^2_{\text{real}} = 0.9256$, por combinar alto rendimiento y robustez. Se acompaña de dos candidatos adicionales de la misma cuenca robusta, \texttt{hc627\_008} ($0.9134$) y \texttt{hc627\_043} ($0.9014$), que ofrecen alternativas de diseño con garantías similares de tolerancia a fabricación. La geometría se caracteriza por $c_{2c} = 0.300\;\mu$m y un perfil de anchos variable con media ${\sim}0.088\;\mu$m. El conjunto completo de candidatos ordenados se entrega en el repositorio de código (\texttt{results/final/}). La Figura~\ref{fig:perfil_hc627} muestra su perfil de anchos y la Figura~\ref{fig:campo_hc627} el perfil de intensidad resultante en el plano focal.
+La geometría recomendada como resultado del proyecto es \texttt{hc627\_036}, con $R^2_{\text{real}} = 0.9256$, por combinar alto rendimiento y robustez relativa dentro de la cuenca 627. Se acompaña de dos candidatos adicionales de la misma cuenca, \texttt{hc627\_008} ($0.9134$) y \texttt{hc627\_043} ($0.9014$), que ofrecen alternativas confirmadas por FDTD con $R^2 \geq 0.90$. La geometría se caracteriza por $c_{2c} = 0.300\;\mu$m y un perfil de anchos variable con media ${\sim}0.088\;\mu$m. El conjunto completo de candidatos ordenados se entrega en el repositorio de código (\texttt{results/final/}). La Figura~\ref{fig:perfil_hc627} muestra su perfil de anchos y la Figura~\ref{fig:campo_hc627} el perfil de intensidad resultante en el plano focal.
 
 \begin{figure}[H]
     \centering
@@ -163,7 +163,7 @@ La geometría recomendada como resultado del proyecto es \texttt{hc627\_036}, co
     \label{fig:perfil_hc627}
 \end{figure}
 
-El perfil de anchos (Figura~\ref{fig:perfil_hc627}) es, en sí mismo, revelador: no es la parábola suave de una lente convergente clásica, sino un patrón oscilatorio cuasi-periódico, en el que los anchos alternan entre ${\sim}30$ y ${\sim}150$~nm a lo largo de unos cuatro lóbulos del arreglo. Es precisamente el tipo de configuración no intuitiva que un diseño analítico guiado por la intuición de lente difícilmente propondría y que el diseño inverso asistido por aprendizaje sí localiza: el enfoque emerge de una modulación distribuida y compleja de la fase, no de un gradiente monotónico de anchos.
+El perfil de anchos (Figura~\ref{fig:perfil_hc627}) no es la parábola suave de una lente convergente clásica, sino un patrón oscilatorio cuasi-periódico, en el que los anchos alternan entre ${\sim}30$ y ${\sim}150$~nm a lo largo de unos cuatro lóbulos del arreglo. Es el tipo de configuración no intuitiva que un diseño analítico guiado por la intuición de lente difícilmente propondría y que el diseño inverso asistido por aprendizaje sí localiza: el enfoque emerge de una modulación distribuida y compleja de la fase, no de un gradiente monotónico de anchos.
 
 \begin{figure}[H]
     \centering
@@ -196,7 +196,7 @@ Surrogate (inferencia por lotes)  & $0.036$ ms/geom & ${\sim}5\times10^{7}$ \\
 \label{tab:speedup}
 \end{table}
 
-La implicación a escala de pipeline es contundente: una ejecución del GA evalúa del orden de $2 \times 10^4$ geometrías (población $250 \times 80$ generaciones) en menos de un segundo con el surrogate. Explorar ese mismo número de geometrías por FDTD directa requeriría ${\sim}10{,}100$ horas de cómputo (${\sim}1.2$ años en un nodo). El costo de FDTD se reserva exclusivamente para la confirmación de los ${\sim}10$ candidatos finales de cada iteración y para el refinamiento por hill-climbing, manteniendo el presupuesto de simulación acotado a unas pocas horas por iteración. Esta reducción del costo computacional es precisamente el objetivo planteado en la propuesta del proyecto.
+A escala de pipeline, la diferencia es decisiva: una ejecución del GA evalúa del orden de $2 \times 10^4$ geometrías (población $250 \times 80$ generaciones) en menos de un segundo con el surrogate. Explorar ese mismo número de geometrías por FDTD directa requeriría ${\sim}10{,}100$ horas de cómputo (${\sim}1.2$ años en un nodo). El costo de FDTD se reserva exclusivamente para la confirmación de los ${\sim}10$ candidatos finales de cada iteración y para el refinamiento por hill-climbing, lo que mantiene el presupuesto de simulación acotado a unas pocas horas por iteración. Esta reducción del costo computacional es el objetivo planteado en la propuesta del proyecto.
 
 % --------------------------------------------------
 \subsection{Comparación con Trabajos Previos}\label{subsec:comparacion}
@@ -231,17 +231,17 @@ en~\cite{maia2025inverse} frente a ${\sim}1{,}100$ en este trabajo).}
 \label{tab:comparacion}
 \end{table}
 
-Del contraste se desprenden tres posicionamientos. Primero, frente al diseño inverso directo, en el que una red aprende el mapeo respuesta~$\rightarrow$~geometría y debe sortear la no-unicidad del problema, como en la arquitectura en tándem de~\cite{liu2018tandem}, este trabajo emplea un subrogado \textit{directo} (geometría $\rightarrow$ respuesta) acoplado a un optimizador, evitando así la patología de no-unicidad a costa de delegar la búsqueda al algoritmo genético. Segundo, frente a los modelos que predicen un escalar (un parámetro geométrico o una figura de mérito, como en~\cite{maia2025inverse}), aquí se predice el campo óptico focal completo, del que se deriva a posteriori cualquier métrica. Esta decisión, además, resultó esencial para evitar el desbalance que estancó el primer enfoque (Sección~\ref{sec:modelado}). Tercero, este trabajo comparte con~\cite{gao2025surrogate} la filosofía de acoplar un subrogado con un optimizador evolutivo, pero aporta dos elementos exigidos por la escasez de datos ($\sim$1{,}100 simulaciones en 102 dimensiones): la restricción al manifold de geometrías validadas, sin la cual el optimizador explota las regiones donde el subrogado extrapola, y la caracterización de robustez de las cuencas, que reveló el hallazgo central aguja/amplia (Sección~\ref{subsec:aguja_amplia}).
+El contraste sitúa este trabajo frente al estado del arte en varios planos. Frente al diseño inverso directo, en el que una red aprende el mapeo respuesta~$\rightarrow$~geometría y debe sortear la no-unicidad del problema, como en la arquitectura en tándem de~\cite{liu2018tandem}, aquí se emplea un subrogado \textit{directo} (geometría $\rightarrow$ respuesta) acoplado a un optimizador, lo que evita la patología de no-unicidad a costa de delegar la búsqueda al algoritmo genético. A diferencia de los modelos que predicen solo un escalar (un parámetro geométrico o una figura de mérito, como en~\cite{maia2025inverse}), este trabajo predice el campo óptico focal completo y lo complementa con una cabeza escalar supervisada para $\hat{R}^2_{\text{pred}}$, decisión que fue esencial para evitar el desbalance que estancó el primer enfoque y para no depender de la propagación del campo predicho, sensible a errores de fase (Sección~\ref{sec:modelado}). Por último, aunque comparte con~\cite{gao2025surrogate} la filosofía de acoplar un subrogado con un optimizador evolutivo, aporta dos elementos exigidos por la escasez de datos ($\sim$1{,}100 simulaciones en 102 dimensiones): la restricción al manifold de geometrías validadas, sin la cual el optimizador explota las regiones donde el subrogado extrapola, y la caracterización de robustez de las cuencas, que reveló el hallazgo central aguja/amplia (Sección~\ref{subsec:aguja_amplia}).
 
 Respecto al trabajo de referencia~\cite{airy_metalens}, la diferencia es de naturaleza metodológica: aquel obtiene la geometría por un \textit{cierre analítico} del \textit{phase matching} (bastan dos anchos de rendija para reproducir el perfil de Airy objetivo), mientras que aquí la geometría se descubre mediante búsqueda inversa sobre el espacio completo de 101 anchos independientes. Ambos enfoques son complementarios y no comparables por su valor de $R^2$, pues optimizan objetivos ópticos distintos (generación de un haz de Airy con eficiencia de transmisión ${\sim}60\%$ en~\cite{airy_metalens}, frente a enfoque parabólico en este trabajo).
 
 \subsubsection{Sobre el Conjunto Externo de la Investigadora}\label{subsubsec:consultora}
 
-El proyecto dispuso de un conjunto adicional de $200$ simulaciones proporcionadas por la investigadora responsable (\texttt{Simulation\_XXX}), que se reservó como posible referencia externa (Sección~\ref{subsec:generacion}). Tras el análisis, se concluye que no constituye una comparación cuantitativa válida del modelo, por tres razones:
+El proyecto dispuso de un conjunto adicional de $200$ simulaciones proporcionadas por la investigadora responsable (\texttt{Simulation\_XXX}), que se reservó como posible referencia externa (Sección~\ref{subsec:generacion}). Tras el análisis, se concluye que no es una comparación cuantitativa válida del modelo, por tres razones:
 
 \begin{enumerate}
     \item \textbf{Incompatibilidad de la entrada.} El surrogate fija la dimensión de entrada en $102$ ($101$ anchos más la separación). Las geometrías de este conjunto emplean un número de rendijas distinto y variable (del orden de decenas a cientos), por lo que
-    \emph{no son representables} en el espacio de entrada del modelo sin redefinir su parametrización. De hecho, los archivos disponibles conservan solo la respuesta óptica ($R^2$, fase, transmitancia), no el vector geométrico, lo que impide incluso construir la entrada.
+    \emph{no son representables} en el espacio de entrada del modelo sin redefinir su parametrización. Las geometrías completas sí se conservan en los archivos de diseño de experimentos, pero no pueden incorporarse al modelo actual sin una representación de entrada compatible con longitud variable.
     \item \textbf{Régimen físico fuera de distribución.} Aun reparametrizando, estas simulaciones operan en un régimen muy distinto del de entrenamiento: el plano focal abarca entre $383$ y ${\sim}10{,}400$ puntos transversales (media ${\sim}4{,}400$, frente a ${\sim}800$ en el conjunto propio), reflejo de dominios y aperturas mucho mayores y de separaciones centro a centro de hasta $0.70\;\mu$m. Cualquier predicción sería una extrapolación masiva, no una medida del desempeño del modelo en su dominio de diseño.
     \item \textbf{Propósito.} Por lo anterior, este conjunto se conserva únicamente como referencia externa cualitativa, evidencia de que existen buenos enfocadores en otros regímenes, con un máximo de $R^2 = 0.9956$ (\texttt{Simulation\_22}), y no como banco de prueba del surrogate. Evaluar la generalización fuera del régimen de $101$ rendijas exigiría un modelo con entrada de longitud variable, que se plantea como trabajo
     futuro (Sección~\ref{subsec:trabajo_futuro}).

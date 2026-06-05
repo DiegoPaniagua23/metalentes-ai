@@ -11,20 +11,20 @@ El proyecto desarrolló y validó un prototipo de diseño inverso asistido por a
 \begin{itemize}
     \item \textbf{Dataset (Objetivo 1):} se construyó y depuró un conjunto de $1{,}110$ simulaciones FDTD que vinculan la geometría de las nano-rendijas con su respuesta óptica (campo focal y $R^2$), más $200$ simulaciones adicionales reservadas como referencia de un régimen físico distinto.
     \item \textbf{Surrogate (Objetivo 2):} se entrenó un modelo subrogado que predice el campo óptico focal completo a partir de la geometría, con tiempo de inferencia de milisegundos frente a los ${\sim}30$~min de una simulación FDTD.
-    \item \textbf{Optimización (Objetivo 3):} se desarrolló un pipeline de diseño inverso (algoritmo genético restringido al manifold con aptitud combinada, más refinamiento por hill-climbing FDTD) que halló geometrías que cumplen el criterio de éxito y, en conjunto, desplazó la calidad de los candidatos muy por encima del muestreo aleatorio ($R^2_{\text{real}}$ medio de ${\sim}0.79$ frente a $0.24$ del DoE; Sección~\ref{subsec:convergencia}).
+    \item \textbf{Optimización (Objetivo 3):} se desarrolló un pipeline de diseño inverso (algoritmo genético restringido al manifold con aptitud combinada, más refinamiento por hill-climbing FDTD) que halló geometrías que cumplen el criterio de éxito y, en conjunto, desplazó la calidad de los candidatos muy por encima del conjunto histórico consolidado ($R^2_{\text{real}}$ medio de ${\sim}0.79$ frente a $0.24$ del dataset consolidado; Sección~\ref{subsec:convergencia}).
 \end{itemize}
 
 % --------------------------------------------------
 \subsection{Aportaciones y Hallazgos}\label{subsec:hallazgos}
 
 \begin{enumerate}
-    \item \textbf{Reformulación del objetivo de aprendizaje.} El hallazgo metodológico central fue que predecir el campo óptico focal (objetivo denso) en lugar del escalar de calidad $R^2$ (objetivo escaso y desbalanceado) elimina el desbalance estructural que estancó el primer enfoque. El criterio de éxito deja de ser el objetivo de entrenamiento y se evalúa sobre la respuesta predicha por el surrogate, confirmándose por FDTD.
+    \item \textbf{Reformulación del objetivo de aprendizaje.} El hallazgo metodológico central fue que predecir el campo óptico focal (objetivo denso), complementado con una cabeza escalar supervisada para $\hat{R}^2_{\text{pred}}$, evita depender exclusivamente del escalar de calidad $R^2$ como objetivo escaso y desbalanceado. El criterio de éxito deja de ser el objetivo único de entrenamiento, se usa para priorizar candidatos mediante el surrogate y se confirma finalmente por FDTD.
 
-    \item \textbf{Necesidad de restringir la búsqueda al manifold.} Un optimizador libre sobre un surrogate imperfecto explota sus debilidades, convergiendo a regiones no vistas donde el modelo sobreestima. Restringir el GA a vecindarios de geometrías validadas fue indispensable para producir candidatos físicamente fiables.
+    \item \textbf{Necesidad de restringir la búsqueda al manifold.} Un optimizador libre sobre un surrogate imperfecto explota sus debilidades y converge a regiones no vistas donde el modelo sobreestima. Restringir el GA a vecindarios de geometrías validadas fue indispensable para producir candidatos físicamente fiables.
 
-    \item \textbf{Cuencas ``aguja'' frente a ``amplia''.} El paisaje de diseño contiene óptimos cualitativamente distintos: máximos puntuales muy sensibles a perturbaciones de fabricación (``aguja'', p.ej.\ $R^2 = 0.9579$ que colapsa bajo $\pm 5$~nm) y cuencas amplias robustas a dichas tolerancias. El pipeline ML localizó la cuenca robusta, un resultado de mayor valor de ingeniería que el máximo puntual del muestreo aleatorio.
+    \item \textbf{Cuencas ``aguja'' frente a ``amplia''.} El paisaje de diseño contiene óptimos cualitativamente distintos: máximos puntuales muy sensibles a perturbaciones de fabricación (``aguja'', p.ej.\ $R^2 = 0.9579$ que colapsa bajo $\pm 5$~nm) y cuencas relativamente más robustas bajo perturbaciones de esa escala. El pipeline ML localizó la cuenca 627, de mayor valor de ingeniería que el máximo puntual del muestreo aleatorio por su menor degradación local.
 
-    \item \textbf{El \textit{plateau} como propiedad del paisaje.} El límite $[0.85, 0.91]$ observado en las iteraciones no fue un defecto del modelo: persistió a través de tres surrogates, tres radios de búsqueda y distintos \textit{seeds}, y el hill-climbing por FDTD directa confirmó que refleja la estructura del problema físico en las cuencas exploradas.
+    \item \textbf{El estancamiento como propiedad del paisaje.} El límite $[0.85, 0.91]$ observado en las iteraciones no se explica solo por un defecto del modelo: persistió a través de tres surrogates, tres radios de búsqueda y distintas semillas, y el hill-climbing por FDTD directa es consistente con que refleja la estructura local del problema físico en las cuencas exploradas.
 \end{enumerate}
 
 % --------------------------------------------------
