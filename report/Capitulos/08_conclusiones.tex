@@ -1,0 +1,48 @@
+% ==================================================
+%  Capítulo 8 — Conclusiones
+% ==================================================
+\section{Conclusiones}\label{sec:conclusiones}
+
+El proyecto desarrolló y validó un prototipo de diseño inverso asistido por aprendizaje automático para metalentes plasmónicas, cumpliendo el criterio de éxito de la propuesta: se obtuvieron geometrías con $R^2 \geq 0.90$ confirmadas por simulación FDTD, siendo la recomendada \texttt{hc627\_036} con $R^2_{\text{real}} = 0.9256$.
+
+% --------------------------------------------------
+\subsection{Cumplimiento de Objetivos}\label{subsec:cumplimiento}
+
+\begin{itemize}
+    \item \textbf{Dataset (Objetivo 1):} se construyó y depuró un conjunto de $1{,}110$ simulaciones FDTD que vinculan la geometría de las nano-rendijas con su respuesta óptica (campo focal y $R^2$), más $200$ simulaciones adicionales reservadas como referencia de un régimen físico distinto.
+    \item \textbf{Surrogate (Objetivo 2):} se entrenó un modelo subrogado que predice el campo óptico focal completo a partir de la geometría, con tiempo de inferencia de milisegundos frente a los ${\sim}30$~min de una simulación FDTD.
+    \item \textbf{Optimización (Objetivo 3):} se desarrolló un pipeline de diseño inverso (algoritmo genético restringido al manifold con aptitud combinada, más refinamiento por hill-climbing FDTD) que halló geometrías que cumplen el criterio de éxito y, en conjunto, desplazó la calidad de los candidatos muy por encima del muestreo aleatorio ($R^2_{\text{real}}$ medio de ${\sim}0.79$ frente a $0.24$ del DoE; Sección~\ref{subsec:convergencia}).
+\end{itemize}
+
+% --------------------------------------------------
+\subsection{Aportaciones y Hallazgos}\label{subsec:hallazgos}
+
+\begin{enumerate}
+    \item \textbf{Reformulación del objetivo de aprendizaje.} El hallazgo metodológico central fue que predecir el campo óptico focal (objetivo denso) en lugar del escalar de calidad $R^2$ (objetivo escaso y desbalanceado) elimina el desbalance estructural que estancó el primer enfoque. El criterio de éxito deja de ser el objetivo de entrenamiento y se evalúa sobre la respuesta predicha por el surrogate, confirmándose por FDTD.
+
+    \item \textbf{Necesidad de restringir la búsqueda al manifold.} Un optimizador libre sobre un surrogate imperfecto explota sus debilidades, convergiendo a regiones no vistas donde el modelo sobreestima. Restringir el GA a vecindarios de geometrías validadas fue indispensable para producir candidatos físicamente fiables.
+
+    \item \textbf{Cuencas ``aguja'' frente a ``amplia''.} El paisaje de diseño contiene óptimos cualitativamente distintos: máximos puntuales muy sensibles a perturbaciones de fabricación (``aguja'', p.ej.\ $R^2 = 0.9579$ que colapsa bajo $\pm 5$~nm) y cuencas amplias robustas a dichas tolerancias. El pipeline ML localizó la cuenca robusta, un resultado de mayor valor de ingeniería que el máximo puntual del muestreo aleatorio.
+
+    \item \textbf{El \textit{plateau} como propiedad del paisaje.} El límite $[0.85, 0.91]$ observado en las iteraciones no fue un defecto del modelo: persistió a través de tres surrogates, tres radios de búsqueda y distintos \textit{seeds}, y el hill-climbing por FDTD directa confirmó que refleja la estructura del problema físico en las cuencas exploradas.
+\end{enumerate}
+
+% --------------------------------------------------
+\subsection{Limitaciones}\label{subsec:limitaciones}
+
+La principal limitación es la densidad de muestreo. Las $1{,}110$ simulaciones en un espacio de $102$ dimensiones cubren una fracción ínfima del dominio, por lo que el surrogate solo es fiable cerca de las regiones observadas y la búsqueda debió restringirse al manifold. La correlación moderada entre el $R^2$ predicho y el real ($\approx +0.29$), con sobreestimación en la zona alta, refleja esta escasez. Finalmente, el estudio se limitó al perfil de enfoque parabólico, a $\lambda = 630$~nm y al régimen de $101$ rendijas con separación constante, sin aplicar las restricciones de fabricación como filtro explícito.
+
+% --------------------------------------------------
+\subsection{Trabajo Futuro}\label{subsec:trabajo_futuro}
+
+\begin{itemize}
+    \item \textbf{Densificar el espacio de diseño:} un diseño de experimentos complementario dirigido a las cuencas conocidas y a regiones inexploradas podría revelar nuevas cuencas robustas y mejorar la fiabilidad del surrogate fuera del manifold actual.
+
+    \item \textbf{Reducción de dimensionalidad:} parametrizar la geometría con pocos grados de libertad efectivos (en lugar de $102$ variables libres) aliviaría la escasez de datos y facilitaría una búsqueda global más confiable.
+
+    \item \textbf{Restricciones de fabricación explícitas:} incorporar las tolerancias litográficas como filtro duro o como término de robustez en la aptitud, alineando la optimización con la cuenca amplia desde el inicio.
+
+    \item \textbf{Perfiles objetivo alternativos} (p.ej.\ Airy) y otros rangos espectrales, así como la incorporación de variables adicionales (grosor de película, material del sustrato, ángulo de incidencia).
+
+    \item \textbf{Validación experimental} de las geometrías recomendadas en colaboración con el CICESE, como paso natural hacia la fabricación.
+\end{itemize}

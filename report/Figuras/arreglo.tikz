@@ -1,0 +1,119 @@
+\documentclass[tikz, border=10pt]{standalone}
+\usepackage{tikz}
+\usepackage{xcolor}
+
+\definecolor{goldau}{RGB}{207,137,30}
+\definecolor{goldstroke}{RGB}{99,56,6}
+\definecolor{substrate}{RGB}{181,212,244}
+\definecolor{substroke}{RGB}{55,138,221}
+\definecolor{lightgreen}{RGB}{30,160,120}
+\definecolor{annoRed}{RGB}{163,45,45}
+\definecolor{annoBlue}{RGB}{24,95,165}
+
+\begin{document}
+\begin{tikzpicture}[scale=1.0, >=stealth]
+
+  %% Dimensiones base
+  \def\ybot{0}
+  \def\ysub{1.0}
+  \def\yau{\ysub}
+  \def\goldh{1.4}
+  \def\ytop{\yau+\goldh}   % = 2.4
+
+  %% Logica de bloques y rendijas (todos bloques = 1.6, todas rendijas = 1.2)
+  %  B1: 0.2  - 1.8    Rendija1: 1.8  - 3.0
+  %  B2: 3.0  - 4.6    Rendija2: 4.6  - 5.8   <- anotamos widths
+  %  B3: 5.8  - 7.4    Rendija3: 7.4  - 8.6   <- centro para c2c_d
+  %  B4: 8.6  - 10.2   Rendija4: 10.2 - 11.4
+  %  B5: 11.4 - 13.0
+  %
+  %  Sustrato: de 0.0 a 13.2 (margen simetrico de 0.2 a cada lado)
+
+  %% --- Sustrato dielectrico ---
+  \fill[substrate, fill opacity=0.5] (0.0,\ybot) rectangle (13.2,\ysub);
+  \draw[substroke, line width=0.6pt] (0.0,\ybot) rectangle (13.2,\ysub);
+  \node[font=\small, text=annoBlue] at (6.6, 0.5)
+      {sustrato diel\'ectrico (SiO\textsubscript{2})};
+
+  %% --- 5 bloques de oro identicos (ancho = 1.6 cada uno) ---
+  \foreach \xa/\xb in {
+      0.2/1.8,
+      3.0/4.6,
+      5.8/7.4,
+      8.6/10.2,
+      11.4/13.0}{
+    \fill[goldau, fill opacity=0.85] (\xa,\yau) rectangle (\xb,\ytop);
+    \draw[goldstroke, line width=0.5pt] (\xa,\yau) rectangle (\xb,\ytop);
+  }
+
+  %% Etiqueta Au
+  \node[font=\small\bfseries, text=goldstroke, anchor=east]
+      at (-0.15, \yau+0.7) {\textbf{Au}};
+
+  %% --- Anotacion widths (rendija 2: 4.6 a 5.8, w=1.2) ---
+  \def\xwa{4.6}
+  \def\xwb{5.8}
+  \def\yannoW{3.55}
+
+  \draw[annoRed, dashed, line width=0.5pt] (\xwa, \ytop) -- (\xwa, \yannoW);
+  \draw[annoRed, dashed, line width=0.5pt] (\xwb, \ytop) -- (\xwb, \yannoW);
+  \draw[annoRed, <->, line width=0.9pt]
+      (\xwa, \yannoW) -- (\xwb, \yannoW);
+  \node[font=\small\itshape, text=annoRed, above]
+      at ({(\xwa+\xwb)/2}, \yannoW)
+      {$w$ \textit{(widths)}};
+
+  %% --- Anotacion c2c_d ---
+  %  Centro rendija 2: (4.6+5.8)/2 = 5.2
+  %  Centro rendija 3: (7.4+8.6)/2 = 8.0
+  \def\xca{5.2}
+  \def\xcb{8.0}
+  \def\yannoC{2.95}
+
+  \fill[annoBlue] (\xca, \yannoC) circle (2pt);
+  \fill[annoBlue] (\xcb, \yannoC) circle (2pt);
+  \draw[annoBlue, dashed, line width=0.5pt] (\xca, \ytop) -- (\xca, \yannoC);
+  \draw[annoBlue, dashed, line width=0.5pt] (\xcb, \ytop) -- (\xcb, \yannoC);
+  \draw[annoBlue, <->, line width=0.9pt]
+      (\xca, \yannoC) -- (\xcb, \yannoC);
+  \node[font=\small\itshape, text=annoBlue, above]
+      at ({(\xca+\xcb)/2}, \yannoC)
+      {$c$ \textit{(c2c\_d)}};
+
+  %% --- Luz incidente (sobre bloques y rendijas) ---
+  \foreach \x in {1.0, 2.4, 3.8, 5.2, 6.6, 8.0, 9.4, 10.8, 12.2}{
+    \draw[lightgreen, ->, dashed, line width=1.0pt]
+        (\x, 4.7) -- (\x, \ytop+0.05);
+  }
+  \node[font=\small, text=lightgreen, above] at (6.6, 4.7)
+      {luz incidente ($\lambda = 630$ nm)};
+
+  %% --- Luz transmitida (solo bajo las 4 rendijas) ---
+  %  Centros: (1.8+3.0)/2=2.4  (4.6+5.8)/2=5.2  (7.4+8.6)/2=8.0  (10.2+11.4)/2=10.8
+  \foreach \x in {2.4, 5.2, 8.0, 10.8}{
+    \draw[lightgreen, ->, line width=1.2pt]
+        (\x, \ybot) -- (\x, -0.8);
+  }
+  \node[font=\small, text=lightgreen, below] at (6.6, -0.8)
+      {luz transmitida (fase y amplitud moduladas)};
+
+  %% --- Leyenda ---
+  \def\yleg{-2.2}
+  % Oro
+  \fill[goldau, fill opacity=0.85] (0.5,\yleg) rectangle (1.0,\yleg+0.4);
+  \draw[goldstroke, line width=0.5pt] (0.5,\yleg) rectangle (1.0,\yleg+0.4);
+  \node[font=\footnotesize, anchor=west] at (1.15, \yleg+0.2)
+      {pel\'icula de oro (Au)};
+  % Sustrato
+  \fill[substrate, fill opacity=0.5] (4.5,\yleg) rectangle (5.0,\yleg+0.4);
+  \draw[substroke, line width=0.5pt] (4.5,\yleg) rectangle (5.0,\yleg+0.4);
+  \node[font=\footnotesize, anchor=west] at (5.15, \yleg+0.2)
+      {sustrato diel\'ectrico};
+  % Nano-rendija
+  \fill[white] (8.5,\yleg) rectangle (9.0,\yleg+0.4);
+  \draw[black!25, line width=0.5pt] (8.5,\yleg) rectangle (9.0,\yleg+0.4);
+  \node[font=\footnotesize, anchor=west] at (9.15, \yleg+0.2)
+      {nano-rendija (vac\'io/aire)};
+
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,72 @@
+% ==================================================
+%  Preámbulo — Reporte de Consultoría: Metalentes
+% ==================================================
+
+% --- Codificación y lenguaje ---
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\decimalpoint
+\usepackage{lmodern}
+
+% --- Matemáticas ---
+\usepackage{amsmath, amssymb, mathtools}
+
+% --- Diseño de página ---
+\usepackage[left=30mm, right=30mm, top=30mm, bottom=30mm]{geometry}
+\usepackage{parskip}
+\setlength{\parskip}{6pt}
+
+% --- Interlineado (espaciado entre líneas un poco mayor) ---
+\usepackage{setspace}
+\setstretch{1.3}
+
+% --- Elementos visuales ---
+\usepackage{booktabs, array, multicol}
+\usepackage{xcolor}
+\usepackage{graphicx, float}
+\usepackage{fancyhdr}
+
+% --- Leyendas de tablas y figuras (más pequeñas que el cuerpo, etiqueta en negrita) ---
+\usepackage{caption}
+\captionsetup{font=footnotesize, labelfont=bf}
+\usepackage[hidelinks]{hyperref}
+\usepackage{tikz}          % Necesario para la portada
+\usetikzlibrary{babel}     % Evita conflictos entre TikZ y babel (español)
+\usepackage{standalone}    % Permite \input de archivos .tikz standalone
+\usepackage{subcaption}    % Subfiguras lado a lado
+
+% --- Código fuente --
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  frame=single,
+  language=Python,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+}
+
+% --- Cajas de énfasis ---
+\usepackage[skins,breakable]{tcolorbox}
+
+% --- Tablas largas (que se parten entre páginas) y rutas de archivo partibles ---
+\usepackage{longtable}
+\usepackage{url}
+\urlstyle{tt}
+\makeatletter
+\g@addto@macro\UrlBreaks{\do\/\do\_\do\.\do\-}
+\makeatother
+\newcommand{\fpath}[1]{\nolinkurl{#1}}  % ruta monoespaciada que rompe en / _ . -
+
+% --- Bibliografía ---
+\usepackage{csquotes}
+\usepackage[backend=biber, style=numeric, sorting=none]{biblatex}
+\addbibresource{Bibliografia/referencias.bib}
+% Fija el tamaño de letra de la bibliografía al del cuerpo del documento
+% (el cuerpo hereda \footnotesize de la portada; sin esto, las entradas
+% se ven mayores que el texto de los capítulos).
+\renewcommand*{\bibfont}{\normalfont\footnotesize}

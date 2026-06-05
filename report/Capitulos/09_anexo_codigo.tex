@@ -1,0 +1,71 @@
+% ==================================================
+%  Anexo A — Código y Reproducibilidad
+% ==================================================
+\section{Anexo: Código y Reproducibilidad}\label{sec:anexo_codigo}
+
+El artefacto de software del proyecto es un repositorio Git versionado que integra el dataset consolidado, el pipeline completo (preprocesamiento, modelo subrogado y diseño inverso) y los resultados. La reproducción paso a paso se documenta en los archivos \texttt{README.md} del propio repositorio, pensados para que la consultora ejecute el pipeline de principio a fin sin intermediarios. Este anexo cumple, por tanto, dos funciones complementarias. La primera es localizar el repositorio y su estructura (Sección~\ref{subsec:anexo_repo}). La segunda es ofrecer un panorama de la extensión más relevante para la continuación del trabajo, la adaptación del pipeline a metalentes con un número variable de rendijas (Sección~\ref{subsec:anexo_variable}).
+
+% --------------------------------------------------
+\subsection{Repositorio, Estructura y Entorno}\label{subsec:anexo_repo}
+
+El código, el dataset consolidado y los resultados se entregan en un repositorio Git. La URL pública es: \texttt{<pendiente de publicación>}. La estructura de carpetas separa el código vigente del histórico (sufijo \texttt{\_archive/}), de modo que el pipeline reproducible queda aislado del código del primer enfoque (conservado para trazabilidad):
+
+\begin{lstlisting}[numbers=none, basicstyle=\ttfamily\scriptsize]
+metalentes_ai/
+|- consultoria_env.yml          # Entorno conda (dependencias)
+|- README.md                    # Comandos de reproduccion de cada etapa
+|- data/
+|   |- doe/                      # Geometrias de entrada (queues CSV)
+|   |- processed/                # JSONs por simulacion (features extraidas)
+|   |- confirmed/                # Confirmaciones FDTD por iteracion
+|   `- dataset/                  # Dataset OFICIAL ML (npz + metadata.json)
+|- src/
+|   |- data_generation/          # Simulador Meep + extract_features
+|   |- data_processing/          # Re-muestreo + consolidacion del dataset
+|   |- surrogate/                # Entrenamiento + evaluacion del surrogate
+|   `- inverse_design/           # GA + calibracion + confirmacion + hill-climbing
+|- results/
+|   |- surrogate/                # model.pt + training_log + eval_metrics
+|   |- inverse_design/           # top_candidates + ga_convergence
+|   `- final/                    # candidates_ranked + basin_summary (cierre)
+`- report/                       # Fuentes LaTeX de este reporte
+\end{lstlisting}
+
+El entorno se reconstruye con un gestor de paquetes compatible con conda y se activa antes de ejecutar cualquier etapa:
+
+\begin{lstlisting}[language=bash, numbers=none, basicstyle=\ttfamily\scriptsize]
+micromamba create -f consultoria_env.yml
+micromamba activate consultoria_env
+\end{lstlisting}
+
+Las dependencias clave, con sus versiones, se listan en la Tabla~\ref{tab:anexo_deps}. El simulador FDTD (\texttt{pymeep}) es la única etapa de cómputo intensivo, el resto del pipeline (preprocesamiento, surrogate y optimización) corre en una estación local sin GPU en menos de un minuto. Los comandos exactos para reproducir cada etapa (consolidación del dataset, entrenamiento y evaluación del surrogate, calibración y diseño inverso), junto con la tabla que vincula cada resultado del reporte con el comando que lo genera, residen en los archivos \texttt{README.md} del repositorio.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Componente} & \textbf{Paquete} & \textbf{Versión} \\
+\midrule
+Lenguaje              & Python              & 3.13 \\
+Simulador FDTD        & pymeep (Meep)       & 1.31.0 \\
+Cómputo numérico      & NumPy               & 2.3.2 \\
+                      & SciPy               & 1.16.1 \\
+E/S de simulaciones   & h5py (HDF5)         & 3.14.0 \\
+Red neuronal (surrogate) & PyTorch (\texttt{torch}) & (pip) \\
+ML clásico (enfoque v1)  & scikit-learn      & 1.6.1 \\
+                      & XGBoost             & 2.1.4 \\
+Optimización auxiliar & NLopt               & 2.9.1 (pip) \\
+Visualización         & Matplotlib          & 3.10.5 \\
+\bottomrule
+\end{tabular}
+\caption{Dependencias principales del proyecto. El entorno completo (con versiones fijadas de todas las dependencias transitivas) se entrega en \texttt{consultoria\_env.yml}.}
+\label{tab:anexo_deps}
+\end{table}
+
+% --------------------------------------------------
+\subsection{Adaptación a un Número Variable de Rendijas}\label{subsec:anexo_variable}
+
+El pipeline actual fija el número de rendijas en $101$, de modo que la entrada del surrogate es un vector de dimensión fija $\mathbf{x}\in\mathbb{R}^{102}$. Extender el pipeline a metalentes con un número variable de rendijas es la continuación natural y de mayor valor para la investigadora, identificada como trabajo futuro (Secciones~\ref{subsubsec:consultora} y~\ref{subsec:trabajo_futuro}). El obstáculo está acotado. El lado del campo focal del surrogate ya es agnóstico al número de rendijas, pues siempre se re-muestrea a una longitud fija $L=1024$. Solo la entrada geométrica del modelo y el código de restricciones y operadores de búsqueda asumen el valor $101$.
+
+En términos generales, la adaptación requiere tres ajustes. El primero es redefinir la representación de la geometría de entrada para que sea independiente del número de rendijas, de modo que el surrogate pueda recibir metalentes con distinta cantidad de aberturas sin alterar su arquitectura de salida. El segundo es generalizar las restricciones físicas y los operadores del algoritmo genético, hoy escritos para $101$ anchos, de manera que operen sobre un número arbitrario de rendijas. El tercero es ampliar el conjunto de entrenamiento con simulaciones de geometría variable que conserven su vector geométrico completo, ya que el conjunto externo disponible guarda solo la respuesta óptica y no la geometría que la originó (Sección~\ref{subsubsec:consultora}). Con estos elementos, el resto del pipeline, esto es la extracción del campo focal, el entrenamiento, la optimización y la confirmación FDTD, se mantiene sin cambios conceptuales.

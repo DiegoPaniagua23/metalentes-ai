@@ -1,0 +1,32 @@
+\begin{tikzpicture}[>=stealth, font=\small,
+   stage/.style={draw=blue!55, line width=0.7pt, rounded corners=2pt, fill=blue!8,
+                 minimum width=8.6cm, minimum height=0.82cm, align=center, inner sep=3pt},
+   io/.style={draw=green!45!black, line width=0.7pt, rounded corners=2pt, fill=green!10,
+              minimum width=8.6cm, minimum height=0.82cm, align=center, inner sep=3pt},
+   fdtd/.style={draw=orange!75!black, line width=0.7pt, rounded corners=2pt, fill=orange!14,
+                minimum width=8.6cm, minimum height=0.82cm, align=center, inner sep=3pt},
+   flow/.style={->, line width=0.9pt, draw=blue!55!black}]
+
+  \node[io]    (seed) at (0, 0.0)  {\textbf{Seeds} confirmados por FDTD ($R^2 \geq 0.85$)};
+  \node[stage] (init) at (0,-1.25) {Inicialización: población en caja $\ell_\infty(\delta)$, una por \textit{cluster}};
+  \node[stage] (fit)  at (0,-2.50) {Aptitud combinada $\mathcal{F}=\hat{R}^2_{\text{pred}}+\alpha z_{\text{conc}}-\beta z_{\text{fwhm}}$ (surrogate)};
+  \node[stage] (sel)  at (0,-3.75) {Selección por torneo \emph{dentro} del \textit{cluster}};
+  \node[stage] (var)  at (0,-5.00) {Cruzamiento SBX intra-\textit{cluster} $+$ mutación gaussiana};
+  \node[stage] (proj) at (0,-6.25) {Proyección a $\ell_\infty(\delta)$ $+$ reparación física $+$ elitismo};
+  \node[stage] (topk) at (0,-7.50) {Selección \textit{top-K} diversificada por \textit{cluster}};
+  \node[fdtd]  (conf) at (0,-8.75) {Confirmación \textbf{FDTD} de los candidatos};
+
+  \draw[flow] (seed) -- (init);
+  \draw[flow] (init) -- (fit);
+  \draw[flow] (fit)  -- (sel);
+  \draw[flow] (sel)  -- (var);
+  \draw[flow] (var)  -- (proj);
+  \draw[flow] (proj) -- (topk);
+  \draw[flow] (topk) -- (conf);
+
+  %% Lazo de generaciones: proj -> fit
+  \draw[flow] (proj.east) -- ++(0.9,0) |- (fit.east);
+  \node[font=\footnotesize\itshape, text=blue!55!black, anchor=west]
+      at (5.0,-4.375) {$\times\,n$ generaciones};
+
+\end{tikzpicture}
