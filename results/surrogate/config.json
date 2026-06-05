@@ -1,0 +1,24 @@
+{
+  "args": {
+    "dataset_dir": "data/dataset",
+    "output_dir": "results/surrogate",
+    "arch": "mlp",
+    "hidden_dims": "512,512,512",
+    "cnn_channels": "32,64,128",
+    "graded_weights": false,
+    "dropout": 0.1,
+    "epochs": 200,
+    "batch_size": 64,
+    "lr": 0.001,
+    "weight_amp": 1.0,
+    "weight_phase": 1.0,
+    "weight_r2": 10.0,
+    "patience": 30,
+    "seed": 42
+  },
+  "hidden_dims": [
+    512,
+    512,
+    512
+  ]
+}

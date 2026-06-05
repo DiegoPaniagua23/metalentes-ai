@@ -1,0 +1,47 @@
+{
+  "experimentos": "hill-climbing FDTD multi-cuenca",
+  "fecha": "2026-05-28",
+  "cuencas": {
+    "hc042": {
+      "seed": "sim_042",
+      "seed_r2_historico": 0.9579,
+      "tipo": "aguja",
+      "n_perturbaciones_validas": 50,
+      "mejor_cand": "hc042_023",
+      "mejor_r2": 0.7839548321905832,
+      "mean_r2": 0.3625247759804857,
+      "std_r2": 0.22413364719599146,
+      "n_ge_090": 0,
+      "n_lt_070": 46
+    },
+    "hc721": {
+      "seed": "sim_721",
+      "seed_r2_historico": 0.9246,
+      "tipo": "aguja",
+      "n_perturbaciones_validas": 50,
+      "mejor_cand": "hc721_050",
+      "mejor_r2": 0.7777963099607564,
+      "mean_r2": 0.31270846546446707,
+      "std_r2": 0.22358453384754765,
+      "n_ge_090": 0,
+      "n_lt_070": 45
+    },
+    "hc627": {
+      "seed": "mvp_c09",
+      "seed_r2_historico": 0.9025,
+      "tipo": "amplia",
+      "n_perturbaciones_validas": 50,
+      "mejor_cand": "hc627_036",
+      "mejor_r2": 0.9256125294350777,
+      "mean_r2": 0.7320308665457373,
+      "std_r2": 0.12419845843050092,
+      "n_ge_090": 3,
+      "n_lt_070": 17
+    }
+  },
+  "mejor_global": {
+    "cand_id": "hc627_036",
+    "r_squared": 0.9256125294350777,
+    "cuenca": "hc627"
+  }
+}

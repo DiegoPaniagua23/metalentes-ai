@@ -1,0 +1,87 @@
+{
+  "alpha": 0.09808584002011132,
+  "beta": 0.10837020796557155,
+  "ols_intercept": -14.05644411477953,
+  "ols_beta_r2": 0.0,
+  "ols_beta_conc": 6.036766146017906,
+  "ols_beta_fwhm": -0.0903085066379763,
+  "ols_r2_fit": 0.8487263601338433,
+  "used_r2_pred_in_ols": false,
+  "std_conc": 0.016248076809271914,
+  "std_fwhm": 1.2,
+  "mean_r2_pred": 0.6729999999999999,
+  "n_samples": 10,
+  "data": [
+    {
+      "cand_id": "mvp_c01",
+      "r2_real": 0.893561500900249,
+      "r2_pred": 0.6733,
+      "fwhm_pred": 226.0,
+      "conc_pred": 5.85
+    },
+    {
+      "cand_id": "mvp_c02",
+      "r2_real": 0.8608471644674349,
+      "r2_pred": 0.6732,
+      "fwhm_pred": 226.0,
+      "conc_pred": 5.85
+    },
+    {
+      "cand_id": "mvp_c03",
+      "r2_real": 0.88153325991012,
+      "r2_pred": 0.6732,
+      "fwhm_pred": 226.0,
+      "conc_pred": 5.85
+    },
+    {
+      "cand_id": "mvp_c04",
+      "r2_real": 0.6610756583428554,
+      "r2_pred": 0.673,
+      "fwhm_pred": 226.0,
+      "conc_pred": 5.84
+    },
+    {
+      "cand_id": "mvp_c05",
+      "r2_real": 0.7156148661758593,
+      "r2_pred": 0.673,
+      "fwhm_pred": 226.0,
+      "conc_pred": 5.84
+    },
+    {
+      "cand_id": "mvp_c06",
+      "r2_real": 0.6856429413567287,
+      "r2_pred": 0.6729,
+      "fwhm_pred": 226.0,
+      "conc_pred": 5.84
+    },
+    {
+      "cand_id": "mvp_c07",
+      "r2_real": 0.36534741957801287,
+      "r2_pred": 0.6729,
+      "fwhm_pred": 229.0,
+      "conc_pred": 5.8
+    },
+    {
+      "cand_id": "mvp_c08",
+      "r2_real": 0.8913895172948485,
+      "r2_pred": 0.6729,
+      "fwhm_pred": 226.0,
+      "conc_pred": 5.84
+    },
+    {
+      "cand_id": "mvp_c09",
+      "r2_real": 0.24732326593748122,
+      "r2_pred": 0.6728,
+      "fwhm_pred": 229.0,
+      "conc_pred": 5.81
+    },
+    {
+      "cand_id": "mvp_c10",
+      "r2_real": 0.899819498190856,
+      "r2_pred": 0.6728,
+      "fwhm_pred": 226.0,
+      "conc_pred": 5.84
+    }
+  ],
+  "description": "fitness = R\u00b2_pred + \u03b1\u00b7conc_z \u2212 \u03b2\u00b7fwhm_z (combo iter 4)"
+}
